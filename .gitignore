@@ -9,3 +9,4 @@ coverage.out
 
 # OS
 .DS_Store
+*.patch

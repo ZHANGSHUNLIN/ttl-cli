@@ -66,13 +66,37 @@ Chega de procurar em emails antigos ou rolar o histórico do Slack. Apenas `ttl 
 
 ### Instalação
 
+#### Linux / macOS
+
 ```bash
-# Compilar a partir do código-fonte
+# Instalar do GitHub releases
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/ZHANGSHUNLIN/TTL-CLI/main/install.sh)"
+
+# Ou compilar a partir do código-fonte
 go build -o ttl .
 sudo mv ttl /usr/local/bin/
+```
 
-# Ou usar o script de instalação
-bash install.sh
+#### Windows
+
+```powershell
+# Instalar do GitHub releases
+irm https://raw.githubusercontent.com/ZHANGSHUNLIN/TTL-CLI/main/install.ps1 | iex
+```
+
+#### URL de Download Personalizada
+
+Para redes internas ou mirrors personalizados:
+
+```bash
+# Linux/macOS
+TTL_DOWNLOAD_URL="https://your-mirror.com/ttl-cli-v1.0.0-linux-amd64" /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/ZHANGSHUNLIN/TTL-CLI/main/install.sh)"
+```
+
+```powershell
+# Windows
+irm https://raw.githubusercontent.com/ZHANGSHUNLIN/TTL-CLI/main/install.ps1 | iex
+install.ps1 -DownloadUrl "https://your-mirror.com/ttl-cli-v1.0.0-windows-amd64.zip"
 ```
 
 ### Uso Básico
