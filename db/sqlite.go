@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 	"ttl-cli/models"
 
@@ -23,8 +24,14 @@ type SQLiteStorage struct {
 }
 
 func NewSQLiteStorage() *SQLiteStorage {
+	// Windows 上使用 DELETE 模式以避免 WAL 模式的文件锁定问题
+	// WAL 模式在某些 Windows 环境下（特别是网络驱动器）可能不工作
+	journalMode := "WAL"
+	if runtime.GOOS == "windows" {
+		journalMode = "DELETE"
+	}
 	return &SQLiteStorage{
-		journalMode: "WAL",
+		journalMode: journalMode,
 		cacheSize:   -64000, // 64MB
 		busyTimeout: 5000,
 		synchronous: "NORMAL",

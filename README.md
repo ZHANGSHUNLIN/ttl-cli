@@ -66,13 +66,37 @@ No more searching through old emails or scrolling through Slack history. Just `t
 
 ### Installation
 
+#### Linux / macOS
+
 ```bash
-# Build from source
+# Install from GitHub releases
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/ZHANGSHUNLIN/TTL-CLI/main/install.sh)"
+
+# Or build from source
 go build -o ttl .
 sudo mv ttl /usr/local/bin/
+```
 
-# Or use the install script
-bash install.sh
+#### Windows
+
+```powershell
+# Install from GitHub releases
+irm https://raw.githubusercontent.com/ZHANGSHUNLIN/TTL-CLI/main/install.ps1 | iex
+```
+
+#### Custom Download URL
+
+For internal networks or custom mirrors:
+
+```bash
+# Linux/macOS
+TTL_DOWNLOAD_URL="https://your-mirror.com/ttl-cli-v1.0.0-linux-amd64" /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/ZHANGSHUNLIN/TTL-CLI/main/install.sh)"
+```
+
+```powershell
+# Windows
+irm https://raw.githubusercontent.com/ZHANGSHUNLIN/TTL-CLI/main/install.ps1 | iex
+install.ps1 -DownloadUrl "https://your-mirror.com/ttl-cli-v1.0.0-windows-amd64.zip"
 ```
 
 ### Basic Usage

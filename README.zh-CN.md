@@ -66,13 +66,37 @@
 
 ### 安装
 
+#### Linux / macOS
+
 ```bash
-# 从源码构建
+# 从 GitHub releases 安装
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/ZHANGSHUNLIN/TTL-CLI/main/install.sh)"
+
+# 或从源码构建
 go build -o ttl .
 sudo mv ttl /usr/local/bin/
+```
 
-# 或使用安装脚本
-bash install.sh
+#### Windows
+
+```powershell
+# 从 GitHub releases 安装
+irm https://raw.githubusercontent.com/ZHANGSHUNLIN/TTL-CLI/main/install.ps1 | iex
+```
+
+#### 自定义下载地址
+
+适用于内网或自定义镜像：
+
+```bash
+# Linux/macOS
+TTL_DOWNLOAD_URL="https://your-mirror.com/ttl-cli-v1.0.0-linux-amd64" /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/ZHANGSHUNLIN/TTL-CLI/main/install.sh)"
+```
+
+```powershell
+# Windows
+irm https://raw.githubusercontent.com/ZHANGSHUNLIN/TTL-CLI/main/install.ps1 | iex
+install.ps1 -DownloadUrl "https://your-mirror.com/ttl-cli-v1.0.0-windows-amd64.zip"
 ```
 
 ### 基础用法

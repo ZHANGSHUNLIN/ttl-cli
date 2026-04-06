@@ -1,124 +1,128 @@
-# =============================================================================
-# ttl Windows 安装脚本
-# 用法：irm https://your-host/install.ps1 | iex
-# 从 GitHub Release 下载预编译二进制
-# =============================================================================
-
 param(
-    [string]$Repo = "your-org/great-tool-go"  # ← 替换为实际仓库：owner/repo
+    [string]$Repo = "ZHANGSHUNLIN/TTL-CLI",
+    [string]$DownloadUrl = ""
 )
 
 $ErrorActionPreference = "Stop"
 $BinaryName = "ttl"
-$InstallDir = Join-Path $env:USERPROFILE "bin"
+$InstallDir = Join-Path $env:USERPROFILE ".ttl"
 
-# ── 输出函数 ──────────────────────────────────────────────────────────────────
 function Write-Host-Color {
     param([string]$Message, [string]$Color = "White")
     Write-Host "[$BinaryName] " -NoNewline
     Write-Host $Message -ForegroundColor $Color
 }
 
-function Info  { Write-Host-Color $_[1] "Cyan" }
-function Success { Write-Host-Color $_[1] "Green" }
-function Warn   { Write-Host-Color $_[1] "Yellow" }
-function Error  { Write-Host-Color $_[1] "Red"; exit 1 }
+function Info  { param($msg) Write-Host-Color $msg "Cyan" }
+function Success { param($msg) Write-Host-Color $msg "Green" }
+function Warn   { param($msg) Write-Host-Color $msg "Yellow" }
+function Error  { param($msg) Write-Host-Color $msg "Red"; exit 1 }
 
-# ── 环境检测 ──────────────────────────────────────────────────────────────────
 function Get-OsArch {
     $arch = $env:PROCESSOR_ARCHITECTURE
     switch ($arch) {
         "AMD64"   { return "amd64" }
         "ARM64"   { return "arm64" }
-        default    { Error "不支持的 CPU 架构：$arch" }
+        default    { Error "Unsupported CPU architecture: $arch" }
     }
 }
 
-# ── GitHub API 获取最新版本 ───────────────────────────────────────────────────
 function Get-LatestVersion {
     try {
         $response = Invoke-RestMethod -Uri "https://api.github.com/repos/$Repo/releases/latest"
         return $response.tag_name
     } catch {
-        Error "无法获取最新版本信息，请检查仓库地址：$Repo"
+        Error "Failed to get latest version, please check repo: $Repo"
     }
 }
 
-# ── 下载二进制文件 ───────────────────────────────────────────────────────────
 function Download-Binary {
     param([string]$Url, [string]$OutputPath)
 
-    Info "正在下载 $Url..."
+    Info "Downloading $Url..."
 
     try {
-        # 使用 TLS 1.2
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         Invoke-WebRequest -Uri $Url -OutFile $OutputPath -UseBasicParsing
     } catch {
-        Error "下载失败：$($_.Exception.Message)"
+        Error "Download failed: $($_.Exception.Message)"
     }
 }
 
-# ── 添加到 PATH ───────────────────────────────────────────────────────────────
 function Add-ToPath {
     param([string]$Dir)
 
-    # 检查是否已在 PATH 中
     $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
     if ($currentPath -split ';' -contains $Dir) {
         return
     }
 
-    Warn "$Dir 不在 PATH 中，正在添加..."
+    Warn "$Dir is not in PATH, adding..."
 
     try {
         $newPath = if ($currentPath) { "$currentPath;$Dir" } else { $Dir }
         [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
-        Success "已将 $Dir 添加到用户 PATH"
-        Warn "请重新打开终端以使更改生效"
+        Success "Added $Dir to user PATH"
+        Warn "Please reopen terminal for changes to take effect"
     } catch {
-        Warn "无法自动添加到 PATH，请手动添加"
+        Warn "Could not add to PATH automatically, please add manually"
         Warn ""
-        Warn "  1. 打开 系统属性 -> 环境变量"
-        Warn "  2. 在 用户变量 中找到 Path，点击编辑"
-        Warn "  3. 添加: $Dir"
+        Warn "  1. Open System Properties -> Environment Variables"
+        Warn "  2. Find Path in User Variables and click Edit"
+        Warn "  3. Add: $Dir"
         Warn ""
     }
 }
 
-# ── 主流程 ────────────────────────────────────────────────────────────────────
 $arch = Get-OsArch
-$version = Get-LatestVersion
-$filename = "$BinaryName-windows-$arch.exe"
-$downloadUrl = "https://github.com/$Repo/releases/download/$version/$filename"
 
-Info "操作系统：Windows / 架构：$arch"
-Info "最新版本：$version"
-Info "安装目标：$InstallDir\$BinaryName.exe"
+if ($DownloadUrl) {
+    $filename = [System.IO.Path]::GetFileName($DownloadUrl)
+    $downloadUrl = $DownloadUrl
+    Info "Using custom download URL"
+    Info "Download file: $filename"
+} else {
+    $version = Get-LatestVersion
+    $filename = "ttl-cli-${version}-windows-${arch}.zip"
+    $downloadUrl = "https://github.com/$Repo/releases/download/$version/$filename"
+    Info "OS: Windows / Arch: $arch"
+    Info "Latest version: $version"
+}
+Info "Install target: $InstallDir\$BinaryName.exe"
 
-# 创建安装目录
 if (!(Test-Path $InstallDir)) {
     New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
-    Info "创建安装目录：$InstallDir"
+    Info "Created install directory: $InstallDir"
 }
 
-# 下载到临时文件
 $tempPath = Join-Path $env:TEMP $filename
+$extractDir = Join-Path $env:TEMP "ttl-cli-extract"
 Download-Binary -Url $downloadUrl -OutputPath $tempPath
 
-# 安装
-$destPath = Join-Path $InstallDir "$BinaryName.exe"
-Move-Item -Path $tempPath -Destination $destPath -Force
+Info "Extracting..."
+Remove-Item -Path $extractDir -Recurse -Force -ErrorAction SilentlyContinue
+New-Item -ItemType Directory -Path $extractDir -Force | Out-Null
+Expand-Archive -Path $tempPath -DestinationPath $extractDir -Force
 
-Success "安装成功！"
-Success "安装位置：$destPath"
+$extractedExe = Get-ChildItem -Path $extractDir -Filter "*.exe" | Select-Object -First 1
 
-# 添加到 PATH
+if ($extractedExe) {
+    $destPath = Join-Path $InstallDir "$BinaryName.exe"
+    Move-Item -Path $extractedExe.FullName -Destination $destPath -Force
+
+    Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path $extractDir -Recurse -Force -ErrorAction SilentlyContinue
+} else {
+    Error "Extraction failed, no executable found"
+}
+
+Success "Installation successful!"
+Success "Installed to: $destPath"
+
 Add-ToPath -Dir $InstallDir
 
-# 验证
 Info ""
-Info "安装完成！现在可以运行："
+Info "Installation complete! You can now run:"
 Info "  ttl --help"
 Info ""
-Warn "如果提示找不到命令，请重新打开终端"
+Warn "If command not found, please reopen terminal"

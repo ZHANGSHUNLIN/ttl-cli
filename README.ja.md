@@ -66,13 +66,37 @@
 
 ### インストール
 
+#### Linux / macOS
+
 ```bash
-# ソースからビルド
+# GitHub releases からインストール
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/ZHANGSHUNLIN/TTL-CLI/main/install.sh)"
+
+# またはソースからビルド
 go build -o ttl .
 sudo mv ttl /usr/local/bin/
+```
 
-# またはインストールスクリプトを使用
-bash install.sh
+#### Windows
+
+```powershell
+# GitHub releases からインストール
+irm https://raw.githubusercontent.com/ZHANGSHUNLIN/TTL-CLI/main/install.ps1 | iex
+```
+
+#### カスタムダウンロード URL
+
+社内ネットワークやカスタムミラー用：
+
+```bash
+# Linux/macOS
+TTL_DOWNLOAD_URL="https://your-mirror.com/ttl-cli-v1.0.0-linux-amd64" /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/ZHANGSHUNLIN/TTL-CLI/main/install.sh)"
+```
+
+```powershell
+# Windows
+irm https://raw.githubusercontent.com/ZHANGSHUNLIN/TTL-CLI/main/install.ps1 | iex
+install.ps1 -DownloadUrl "https://your-mirror.com/ttl-cli-v1.0.0-windows-amd64.zip"
 ```
 
 ### 基本的な使用方法
