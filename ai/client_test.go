@@ -30,7 +30,6 @@ func TestNewClient_TrailingSlash(t *testing.T) {
 
 func TestChat_Success(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// 验证请求头
 		if r.Header.Get("Authorization") != "Bearer sk-test" {
 			t.Errorf("Authorization = %s, want Bearer sk-test", r.Header.Get("Authorization"))
 		}
@@ -44,7 +43,6 @@ func TestChat_Success(t *testing.T) {
 			t.Errorf("Path = %s, want /v1/chat/completions", r.URL.Path)
 		}
 
-		// 验证请求体
 		var req chatRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			t.Fatalf("decode request: %v", err)
@@ -56,7 +54,6 @@ func TestChat_Success(t *testing.T) {
 			t.Fatalf("Messages count = %d, want 1", len(req.Messages))
 		}
 
-		// 返回响应
 		resp := chatResponse{
 			Choices: []struct {
 				Message struct {

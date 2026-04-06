@@ -10,7 +10,6 @@ import (
 	"ttl-cli/models"
 )
 
-// newTempSQLiteDB 在临时目录初始化 SQLite 存储，返回清理函数。
 func newTempSQLiteDB(t *testing.T) func() {
 	t.Helper()
 	tmpDir, err := os.MkdirTemp("", "sqlite-test-*")
@@ -35,7 +34,6 @@ func newTempSQLiteDB(t *testing.T) func() {
 	}
 }
 
-// TestSQLiteInit 测试 SQLite 初始化
 func TestSQLiteInit(t *testing.T) {
 	t.Run("初始化 SQLite 存储", func(t *testing.T) {
 		cleanup := newTempSQLiteDB(t)
@@ -49,7 +47,6 @@ func TestSQLiteInit(t *testing.T) {
 	})
 }
 
-// TestSQLiteResources 测试资源 CRUD
 func TestSQLiteResources(t *testing.T) {
 	t.Run("添加和获取资源", func(t *testing.T) {
 		cleanup := newTempSQLiteDB(t)
@@ -151,7 +148,6 @@ func TestSQLiteResources(t *testing.T) {
 	})
 }
 
-// TestSQLiteAudit 测试审计记录
 func TestSQLiteAudit(t *testing.T) {
 	t.Run("保存和查询审计记录", func(t *testing.T) {
 		cleanup := newTempSQLiteDB(t)
@@ -217,7 +213,6 @@ func TestSQLiteAudit(t *testing.T) {
 	})
 }
 
-// TestSQLiteHistory 测试历史记录
 func TestSQLiteHistory(t *testing.T) {
 	t.Run("保存和查询历史记录", func(t *testing.T) {
 		cleanup := newTempSQLiteDB(t)
@@ -285,7 +280,6 @@ func TestSQLiteHistory(t *testing.T) {
 	})
 }
 
-// TestSQLiteLogs 测试工作日志
 func TestSQLiteLogs(t *testing.T) {
 	t.Run("保存和查询日志记录", func(t *testing.T) {
 		cleanup := newTempSQLiteDB(t)
@@ -363,20 +357,17 @@ func TestSQLiteLogs(t *testing.T) {
 	})
 }
 
-// TestSQLiteConcurrency 测试并发访问
 func TestSQLiteConcurrency(t *testing.T) {
 	t.Run("并发读写", func(t *testing.T) {
 		cleanup := newTempSQLiteDB(t)
 		defer cleanup()
 
-		// 先添加一些数据
 		for i := 0; i < 10; i++ {
 			key := models.ValJsonKey{Key: fmt.Sprintf("key-%d", i), Type: models.ORIGIN}
 			value := models.ValJson{Val: fmt.Sprintf("value-%d", i), Tag: []string{}}
 			_ = SaveResource(key, value)
 		}
 
-		// 并发读取
 		done := make(chan bool)
 		for i := 0; i < 5; i++ {
 			go func() {
@@ -385,7 +376,6 @@ func TestSQLiteConcurrency(t *testing.T) {
 			}()
 		}
 
-		// 并发写入
 		for i := 10; i < 15; i++ {
 			go func(i int) {
 				key := models.ValJsonKey{Key: fmt.Sprintf("key-%d", i), Type: models.ORIGIN}
@@ -395,12 +385,10 @@ func TestSQLiteConcurrency(t *testing.T) {
 			}(i)
 		}
 
-		// 等待所有操作完成
 		for i := 0; i < 10; i++ {
 			<-done
 		}
 
-		// 验证数据
 		resources, err := GetAllResources()
 		if err != nil {
 			t.Fatalf("GetAllResources 失败: %v", err)
@@ -412,7 +400,6 @@ func TestSQLiteConcurrency(t *testing.T) {
 	})
 }
 
-// TestSQLiteTimestamps 测试时间戳字段
 func TestSQLiteTimestamps(t *testing.T) {
 	t.Run("新建资源时设置时间戳", func(t *testing.T) {
 		cleanup := newTempSQLiteDB(t)
@@ -460,21 +447,17 @@ func TestSQLiteTimestamps(t *testing.T) {
 		value1 := models.ValJson{Val: "value1", Tag: []string{"tag1"}}
 		_ = SaveResource(key, value1)
 
-		// 获取创建时间
 		resources1, _ := GetAllResources()
 		originalCreatedAt := resources1[key].CreatedAt
 
-		// 等待确保跨过下一秒（Unix 时间戳是秒级的）
 		time.Sleep(1 * time.Second)
 
-		// 更新资源
 		value2 := models.ValJson{Val: "value2", Tag: []string{"tag2"}}
 		err := UpdateResource(key, value2)
 		if err != nil {
 			t.Fatalf("UpdateResource 失败: %v", err)
 		}
 
-		// 验证时间戳
 		resources2, err := GetAllResources()
 		if err != nil {
 			t.Fatalf("GetAllResources 失败: %v", err)
@@ -495,7 +478,6 @@ func TestSQLiteTimestamps(t *testing.T) {
 		cleanup := newTempSQLiteDB(t)
 		defer cleanup()
 
-		// 按顺序添加多个资源
 		key1 := models.ValJsonKey{Key: "key-1", Type: models.ORIGIN}
 		key2 := models.ValJsonKey{Key: "key-2", Type: models.ORIGIN}
 		key3 := models.ValJsonKey{Key: "key-3", Type: models.ORIGIN}
@@ -506,8 +488,6 @@ func TestSQLiteTimestamps(t *testing.T) {
 		time.Sleep(50 * time.Millisecond)
 		_ = SaveResource(key3, models.ValJson{Val: "value3", Tag: []string{}})
 
-		// 验证 map 返回的是键值对，无法直接保证顺序
-		// 但我们可以验证每个资源的时间戳
 		resources, err := GetAllResources()
 		if err != nil {
 			t.Fatalf("GetAllResources 失败: %v", err)
@@ -517,7 +497,6 @@ func TestSQLiteTimestamps(t *testing.T) {
 			t.Errorf("期望 3 个资源，得到 %d 个", len(resources))
 		}
 
-		// 验证每个资源都有时间戳
 		for key, val := range resources {
 			if val.CreatedAt == 0 {
 				t.Errorf("资源 %s 的 CreatedAt 为 0", key.Key)
@@ -527,7 +506,6 @@ func TestSQLiteTimestamps(t *testing.T) {
 			}
 		}
 
-		// 验证 key-3 的创建时间最晚
 		if resources[key3].CreatedAt < resources[key2].CreatedAt {
 			t.Errorf("key-3 的 CreatedAt 应大于 key-2 的 CreatedAt")
 		}

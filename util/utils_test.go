@@ -4,7 +4,6 @@ import (
 	"testing"
 )
 
-// TestUnescapeString_Newline 测试换行符转义
 func TestUnescapeString_Newline(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -43,7 +42,6 @@ func TestUnescapeString_Newline(t *testing.T) {
 	}
 }
 
-// TestUnescapeString_Tab 测试制表符转义
 func TestUnescapeString_Tab(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -77,7 +75,6 @@ func TestUnescapeString_Tab(t *testing.T) {
 	}
 }
 
-// TestUnescapeString_SpecialChars 测试其他特殊字符转义
 func TestUnescapeString_SpecialChars(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -121,7 +118,6 @@ func TestUnescapeString_SpecialChars(t *testing.T) {
 	}
 }
 
-// TestUnescapeString_NoEscape 测试不需要转义的字符串
 func TestUnescapeString_NoEscape(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -165,7 +161,6 @@ func TestUnescapeString_NoEscape(t *testing.T) {
 	}
 }
 
-// TestUnescapeString_EdgeCases 测试边界情况
 func TestUnescapeString_EdgeCases(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -204,7 +199,6 @@ func TestUnescapeString_EdgeCases(t *testing.T) {
 	}
 }
 
-// TestEscapeString 测试转义字符串（反向操作）
 func TestEscapeString(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -248,7 +242,6 @@ func TestEscapeString(t *testing.T) {
 	}
 }
 
-// TestEscapeUnescapeRoundTrip 测试转义和反转义的往返一致性
 func TestEscapeUnescapeRoundTrip(t *testing.T) {
 	tests := []struct {
 		name  string

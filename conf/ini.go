@@ -22,7 +22,6 @@ func GetTtlConf() (models.TtlIni, error) {
 	confFilePath := filepath.Join(configDir, "ttl.ini")
 
 	if _, err := os.Stat(confFilePath); os.IsNotExist(err) {
-		// 不再预设具体文件名，由 GetDBPath 根据存储类型动态生成
 		return createDefaultConfig(confFilePath, "")
 	}
 
@@ -31,11 +30,9 @@ func GetTtlConf() (models.TtlIni, error) {
 
 func GetTtlConfFromFile(confFile string) (models.TtlIni, error) {
 	if _, err := os.Stat(confFile); os.IsNotExist(err) {
-		// 创建目录和默认配置
 		if err := os.MkdirAll(filepath.Dir(confFile), 0755); err != nil {
 			return models.TtlIni{}, fmt.Errorf("failed to create config directory: %w", err)
 		}
-		// 不再预设具体文件名，由 GetDBPath 根据存储类型动态生成
 		return createDefaultConfig(confFile, "")
 	}
 	return loadConfFile(confFile)
@@ -51,7 +48,6 @@ func loadConfFile(path string) (models.TtlIni, error) {
 		return models.TtlIni{}, fmt.Errorf("failed to parse config file: %w", err)
 	}
 
-	// 尝试从 [storage] section 读取配置（优先级高于根 section）
 	if cfg.HasSection("storage") {
 		storageSec := cfg.Section("storage")
 		if storageType := storageSec.Key("type").String(); storageType != "" {
@@ -62,7 +58,6 @@ func loadConfFile(path string) (models.TtlIni, error) {
 		}
 	}
 
-	// 设置默认存储类型为 sqlite
 	if ttlIni.StorageType == "" {
 		ttlIni.StorageType = "sqlite"
 	}
@@ -80,12 +75,11 @@ func loadConfFile(path string) (models.TtlIni, error) {
 		ttlIni.AI.Timeout = 30
 	}
 
-	// 解析 [bbolt] section
 	if err := cfg.Section("bbolt").MapTo(&ttlIni.BoltDB); err != nil {
 		return models.TtlIni{}, fmt.Errorf("failed to parse bbolt config: %w", err)
 	}
 	if ttlIni.BoltDB.Timeout == 0 {
-		ttlIni.BoltDB.Timeout = 5 // 默认 5 秒超时
+		ttlIni.BoltDB.Timeout = 5
 	}
 
 	return ttlIni, nil
@@ -125,7 +119,6 @@ func SaveAIConfig(confFile string, aiConf models.AIConfig) error {
 	sec.Key("base_url").SetValue(aiConf.BaseURL)
 	sec.Key("model").SetValue(aiConf.Model)
 	sec.Key("timeout").SetValue(fmt.Sprintf("%d", aiConf.Timeout))
-	// 保存多轮上下文配置
 	sec.Key("context_enabled").SetValue(fmt.Sprintf("%v", aiConf.ContextEnabled))
 	sec.Key("context_idle_ttl").SetValue(fmt.Sprintf("%d", aiConf.ContextIdleTTL))
 	sec.Key("context_max_rounds").SetValue(fmt.Sprintf("%d", aiConf.ContextMaxRounds))
@@ -148,8 +141,6 @@ func createDefaultConfig(configPath, dbPath string) (models.TtlIni, error) {
 	storageSec := cfg.Section("storage")
 	storageSec.Key("type").SetValue("sqlite")
 
-	// 只有当明确指定了 dbPath 时才写入配置文件
-	// 否则由 GetDBPath() 根据存储类型动态生成路径
 	if dbPath != "" {
 		storageSec.Key("path").SetValue(dbPath)
 		cfg.Section("").Key("db_path").SetValue(dbPath)

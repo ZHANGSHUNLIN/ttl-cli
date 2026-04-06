@@ -9,8 +9,6 @@ import (
 	"ttl-cli/db"
 )
 
-// ==================== MultiTenantAuthMiddleware ====================
-
 func setupMultiTenantTest(t *testing.T) (*db.UserStore, *db.TenantStorageManager, func()) {
 	t.Helper()
 	tmpDir := t.TempDir()

@@ -4,7 +4,6 @@ import (
 	"testing"
 )
 
-// TestContainsHelper 测试辅助函数
 func TestContainsHelper(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -28,7 +27,7 @@ func TestContainsHelper(t *testing.T) {
 			name:     "不区分大小写包含",
 			s:        "Hello World",
 			substr:   "WORLD",
-			expected: false, // 注意：contains 是区分大小写的
+			expected: false,
 		},
 		{
 			name:     "空字符串",
@@ -48,7 +47,6 @@ func TestContainsHelper(t *testing.T) {
 	}
 }
 
-// contains 检查字符串是否包含子串
 func contains(s, substr string) bool {
 	for i := 0; i <= len(s)-len(substr); i++ {
 		if s[i:i+len(substr)] == substr {

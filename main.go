@@ -45,9 +45,6 @@ func init() {
 	rootCmd.PersistentFlags().IntVar(&cloudTimeout, "cloud-timeout", 30, i18n.T("root.flag_cloud_timeout"))
 	rootCmd.PersistentFlags().StringVar(&confFile, "conf", "", i18n.T("root.flag_conf"))
 
-	// Enable cobra's built-in completion command (used by init)
-	// rootCmd.CompletionOptions.DisableDefaultCmd = true
-
 	rootCmd.AddCommand(command.InitCmd)
 	rootCmd.AddCommand(command.AddCmd)
 	rootCmd.AddCommand(command.GetCmd)
@@ -395,7 +392,6 @@ func main() {
 			return nil
 		}
 
-		// 如果 CLI 参数没有指定 storage 类型，从配置文件读取
 		actualStorageType := storageType
 		if storageType == "sqlite" && cmd.Flags().Changed("storage") == false {
 			ttlConf, err := conf.GetTtlConfFromFile(confFile)
@@ -466,7 +462,6 @@ func countSpecialChars(input string) int {
 	return count
 }
 
-// updateCommandDescriptions recursively updates command Short and Long descriptions
 // after i18n has been initialized
 func updateCommandDescriptions(cmd *cobra.Command) {
 	// Update Short and Long if they contain i18n keys
@@ -477,11 +472,8 @@ func updateCommandDescriptions(cmd *cobra.Command) {
 		cmd.Long = i18n.T(cmd.Long)
 	}
 
-	// Note: Flag descriptions are set during init() and can't be easily
 	// modified after creation. They will display the i18n key name but
-	// the actual functionality works correctly.
 
-	// Recursively update subcommands
 	for _, subCmd := range cmd.Commands() {
 		updateCommandDescriptions(subCmd)
 	}

@@ -1,8 +1,8 @@
 package models
 
 const (
-	ORIGIN = iota // Original resource
-	TAG           // Tag resource
+	ORIGIN = iota
+	TAG
 )
 
 const Version = "1.0.0"
@@ -58,20 +58,17 @@ type LogRecord struct {
 	Date      string   `json:"date"`
 }
 
-// ChatMessage 表示单条聊天消息
 type ChatMessage struct {
 	Role      string `json:"role"`      // "system" | "user" | "assistant"
 	Content   string `json:"content"`   // 消息内容
 	Timestamp int64  `json:"timestamp"` // Unix 时间戳
 }
 
-// SessionMeta 表示会话元数据
 type SessionMeta struct {
 	SessionID  string `json:"session_id"`  // 会话 ID
 	LastActive int64  `json:"last_active"` // 最后活跃时间（Unix 时间戳）
 }
 
-// SortOrder 定义排序方向类型
 type SortOrder string
 
 const (
@@ -92,7 +89,6 @@ type AIConfig struct {
 	Model   string `ini:"model"`
 	Timeout int    `ini:"timeout"`
 
-	// 多轮对话上下文配置
 	ContextEnabled   bool `ini:"context_enabled"`
 	ContextIdleTTL   int  `ini:"context_idle_ttl"`
 	ContextMaxRounds int  `ini:"context_max_rounds"`

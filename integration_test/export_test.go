@@ -12,11 +12,8 @@ import (
 	"ttl-cli/models"
 )
 
-// ── 辅助：读取 CSV 字节到二维字符串切片 ──────────────────────────────────────
-
 func parseCSV(t *testing.T, data []byte) [][]string {
 	t.Helper()
-	// 去掉可能的 BOM
 	data = bytes.TrimPrefix(data, []byte{0xEF, 0xBB, 0xBF})
 	r := csv.NewReader(strings.NewReader(string(data)))
 	rows, err := r.ReadAll()
@@ -26,12 +23,10 @@ func parseCSV(t *testing.T, data []byte) [][]string {
 	return rows
 }
 
-// TestExportResourcesCSV 验证资源导出 CSV 的格式和内容
 func TestExportResourcesCSV(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
-	// 写入两条资源，其中一条带标签
 	_ = db.SaveResource(
 		models.ValJsonKey{Key: "github", Type: models.ORIGIN},
 		models.ValJson{Val: "https://github.com", Tag: []string{"dev", "work"}},
@@ -58,17 +53,14 @@ func TestExportResourcesCSV(t *testing.T) {
 	}
 
 	rows := parseCSV(t, buf.Bytes())
-	// header + 2 data rows
 	if len(rows) != 3 {
 		t.Fatalf("行数 = %d, want 3", len(rows))
 	}
 
-	// 验证 header
 	if rows[0][0] != "key" || rows[0][1] != "value" || rows[0][2] != "tags" {
 		t.Errorf("header 不符: %v", rows[0])
 	}
 
-	// 把数据行按 key 建索引，顺序不定
 	dataByKey := map[string][]string{}
 	for _, row := range rows[1:] {
 		dataByKey[row[0]] = row
@@ -81,7 +73,6 @@ func TestExportResourcesCSV(t *testing.T) {
 	if githubRow[1] != "https://github.com" {
 		t.Errorf("github value = %q, want %q", githubRow[1], "https://github.com")
 	}
-	// tags 用 | 分隔，顺序不保证，只验证都包含
 	for _, tag := range []string{"dev", "work"} {
 		if !strings.Contains(githubRow[2], tag) {
 			t.Errorf("github tags 未包含 %q: got %q", tag, githubRow[2])
@@ -97,7 +88,6 @@ func TestExportResourcesCSV(t *testing.T) {
 	}
 }
 
-// TestExportEmptyResources 验证空库时仍输出 header 行
 func TestExportEmptyResources(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -123,7 +113,6 @@ func TestExportEmptyResources(t *testing.T) {
 	}
 }
 
-// TestExportAuditCSV 验证审计记录导出格式
 func TestExportAuditCSV(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -157,7 +146,6 @@ func TestExportAuditCSV(t *testing.T) {
 	if rows[0][0] != "resource_key" || rows[0][1] != "operation" {
 		t.Errorf("audit header 不符: %v", rows[0])
 	}
-	// 每行 resource_key 都应是 mykey
 	for _, row := range rows[1:] {
 		if row[0] != "mykey" {
 			t.Errorf("resource_key = %q, want mykey", row[0])
@@ -165,13 +153,12 @@ func TestExportAuditCSV(t *testing.T) {
 	}
 }
 
-// TestExportHistoryCSV 验证历史记录导出格式
 func TestExportHistoryCSV(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
 	_ = db.RecordCommandHistory("add", "keyA", false)
-	time.Sleep(time.Millisecond) // 确保时间戳不同
+	time.Sleep(time.Millisecond)
 	_ = db.RecordCommandHistory("get", "keyB", false)
 
 	histRecords, err := db.GetAllHistoryRecords()
@@ -199,7 +186,6 @@ func TestExportHistoryCSV(t *testing.T) {
 	}
 }
 
-// TestExportBOM 验证 BOM 前缀正确写入
 func TestExportBOM(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -207,7 +193,6 @@ func TestExportBOM(t *testing.T) {
 	resources, _ := db.GetAllResources()
 	var buf bytes.Buffer
 
-	// 手动写 BOM + CSV（模拟 ExportCmd --bom 行为）
 	buf.Write([]byte{0xEF, 0xBB, 0xBF})
 	w := csv.NewWriter(&buf)
 	_, err := command.WriteResourcesCSV(w, resources)
@@ -220,8 +205,7 @@ func TestExportBOM(t *testing.T) {
 	if len(b) < 3 || b[0] != 0xEF || b[1] != 0xBB || b[2] != 0xBF {
 		t.Error("BOM 前缀不正确")
 	}
-	// BOM 之后仍是合法 CSV
-	rows := parseCSV(t, b) // parseCSV 内部已去除 BOM
+	rows := parseCSV(t, b)
 	if len(rows) < 1 || rows[0][0] != "key" {
 		t.Errorf("BOM 后 CSV 格式不正确: %v", rows)
 	}

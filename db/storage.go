@@ -10,12 +10,10 @@ import (
 var Stor Storage
 
 func InitDB(storageType string, cloudAPIURL string, cloudAPIKey string, cloudTimeout int, confFile string) error {
-	// 关闭旧存储连接（如果已存在）
 	if Stor != nil {
 		_ = Stor.Close()
 	}
 
-	// 读取配置文件以获取 BoltDB 超时设置
 	var boltTimeout int
 	if confFile == "" {
 		defaultConfPath, err := conf.GetDefaultConfPath()
@@ -31,7 +29,6 @@ func InitDB(storageType string, cloudAPIURL string, cloudAPIKey string, cloudTim
 			boltTimeout = ttlConf.BoltDB.Timeout
 		}
 	}
-	// 默认值由 LocalStorage.Init() 处理（5 秒）
 
 	switch storageType {
 	case "sqlite":
@@ -350,7 +347,6 @@ func DeleteLogRecord(id int64) error {
 	return Stor.DeleteLogRecord(id)
 }
 
-// Chat history wrapper functions
 func SaveChatMessage(sessionID string, message models.ChatMessage) error {
 	if Stor == nil {
 		return fmt.Errorf("storage not initialized")

@@ -10,11 +10,9 @@ import (
 	"ttl-cli/models"
 )
 
-// mockAPIServer 创建模拟的 ttl server REST API
 func mockAPIServer(t *testing.T) *httptest.Server {
 	t.Helper()
 
-	// 内存数据存储
 	resources := make(map[string]struct {
 		Value string   `json:"value"`
 		Tags  []string `json:"tags"`
@@ -116,7 +114,6 @@ func TestCloudStorage_GetAllResources(t *testing.T) {
 	_ = cs.Init()
 	defer cs.Close()
 
-	// 先保存一个资源
 	key := models.ValJsonKey{Key: "test", Type: models.ORIGIN}
 	_ = cs.SaveResource(key, models.ValJson{Val: "hello", Tag: []string{}})
 
@@ -146,7 +143,6 @@ func TestCloudStorage_SaveResource(t *testing.T) {
 		t.Fatalf("SaveResource 失败: %v", err)
 	}
 
-	// 重复保存应该失败
 	err = cs.SaveResource(key, models.ValJson{Val: "value2", Tag: []string{}})
 	if err == nil {
 		t.Fatal("重复保存应该返回错误")
@@ -169,7 +165,6 @@ func TestCloudStorage_DeleteResource(t *testing.T) {
 		t.Fatalf("DeleteResource 失败: %v", err)
 	}
 
-	// 验证已删除
 	resources, _ := cs.GetAllResources()
 	if len(resources) != 0 {
 		t.Errorf("删除后仍有 %d 个资源", len(resources))
@@ -221,7 +216,7 @@ func TestCloudStorage_Timeout(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	cs := NewCloudStorage(srv.URL, "", 1) // 1 秒超时
+	cs := NewCloudStorage(srv.URL, "", 1)
 	_ = cs.Init()
 	defer cs.Close()
 

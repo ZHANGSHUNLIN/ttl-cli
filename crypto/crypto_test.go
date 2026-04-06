@@ -103,13 +103,11 @@ func TestIsEncrypted(t *testing.T) {
 }
 
 func TestKeyManagement(t *testing.T) {
-	// 使用临时目录
 	tmpDir := t.TempDir()
 	oldKeyPath := keyFilePath
 	keyFilePath = filepath.Join(tmpDir, KeyFileName)
 	defer func() { keyFilePath = oldKeyPath }()
 
-	// 1. 密钥文件不存在
 	exists := KeyExists()
 	if exists {
 		t.Error("Expected key file to not exist")
@@ -120,7 +118,6 @@ func TestKeyManagement(t *testing.T) {
 		t.Errorf("LoadKey on non-existent file should return nil, got error: %v", err)
 	}
 
-	// 2. 生成并保存密钥
 	key, err := GenerateKey()
 	if err != nil {
 		t.Fatalf("GenerateKey failed: %v", err)
@@ -135,13 +132,11 @@ func TestKeyManagement(t *testing.T) {
 		t.Fatalf("SaveKey failed: %v", err)
 	}
 
-	// 3. 检查密钥文件存在
 	exists = KeyExists()
 	if !exists {
 		t.Error("Expected key file to exist")
 	}
 
-	// 4. 加载密钥
 	loadedKey, err := LoadKey()
 	if err != nil {
 		t.Fatalf("LoadKey failed: %v", err)
@@ -151,7 +146,6 @@ func TestKeyManagement(t *testing.T) {
 		t.Errorf("Loaded key has wrong size: got %d, want %d", len(loadedKey), KeySize)
 	}
 
-	// 5. 验证密钥可以用于加密解密
 	testData := "test-data-123"
 	encrypted, err := Encrypt(loadedKey, testData)
 	if err != nil {
@@ -167,13 +161,11 @@ func TestKeyManagement(t *testing.T) {
 		t.Errorf("Decrypted data mismatch: got %q, want %q", decrypted, testData)
 	}
 
-	// 6. 验证密钥
 	err = VerifyKey()
 	if err != nil {
 		t.Errorf("VerifyKey failed: %v", err)
 	}
 
-	// 7. 删除密钥
 	err = DeleteKey()
 	if err != nil {
 		t.Fatalf("DeleteKey failed: %v", err)
@@ -186,13 +178,11 @@ func TestKeyManagement(t *testing.T) {
 }
 
 func TestExportImportKey(t *testing.T) {
-	// 使用临时目录
 	tmpDir := t.TempDir()
 	oldKeyPath := keyFilePath
 	keyFilePath = filepath.Join(tmpDir, KeyFileName)
 	defer func() { keyFilePath = oldKeyPath }()
 
-	// 生成并保存密钥
 	key, err := GenerateKey()
 	if err != nil {
 		t.Fatalf("GenerateKey failed: %v", err)
@@ -203,26 +193,22 @@ func TestExportImportKey(t *testing.T) {
 		t.Fatalf("SaveKey failed: %v", err)
 	}
 
-	// 导出密钥
 	exportPath := filepath.Join(tmpDir, "exported.key")
 	err = ExportKey(exportPath)
 	if err != nil {
 		t.Fatalf("ExportKey failed: %v", err)
 	}
 
-	// 删除原密钥
 	err = DeleteKey()
 	if err != nil {
 		t.Fatalf("DeleteKey failed: %v", err)
 	}
 
-	// 从导出文件导入
 	err = ImportKey(exportPath)
 	if err != nil {
 		t.Fatalf("ImportKey failed: %v", err)
 	}
 
-	// 验证导入的密钥
 	loadedKey, err := LoadKey()
 	if err != nil {
 		t.Fatalf("LoadKey failed: %v", err)
@@ -245,13 +231,11 @@ func TestExportImportKey(t *testing.T) {
 }
 
 func TestInitEncryption(t *testing.T) {
-	// 使用临时目录
 	tmpDir := t.TempDir()
 	oldKeyPath := keyFilePath
 	keyFilePath = filepath.Join(tmpDir, KeyFileName)
 	defer func() { keyFilePath = oldKeyPath }()
 
-	// 测试不创建密钥
 	err := InitEncryption(false)
 	if err != nil {
 		t.Fatalf("InitEncryption failed: %v", err)
@@ -261,7 +245,6 @@ func TestInitEncryption(t *testing.T) {
 		t.Error("Key should not be created when createIfMissing is false")
 	}
 
-	// 测试创建密钥
 	err = InitEncryption(true)
 	if err != nil {
 		t.Fatalf("InitEncryption failed: %v", err)
@@ -271,7 +254,6 @@ func TestInitEncryption(t *testing.T) {
 		t.Error("Key should be created when createIfMissing is true")
 	}
 
-	// 再次初始化（密钥已存在）
 	err = InitEncryption(true)
 	if err != nil {
 		t.Fatalf("InitEncryption failed with existing key: %v", err)
@@ -279,13 +261,11 @@ func TestInitEncryption(t *testing.T) {
 }
 
 func TestInvalidKeyFile(t *testing.T) {
-	// 使用临时目录
 	tmpDir := t.TempDir()
 	oldKeyPath := keyFilePath
 	keyFilePath = filepath.Join(tmpDir, KeyFileName)
 	defer func() { keyFilePath = oldKeyPath }()
 
-	// 写入无效的密钥内容
 	path := GetKeyFilePath()
 	os.WriteFile(path, []byte("invalid-hex"), 0600)
 
@@ -294,7 +274,6 @@ func TestInvalidKeyFile(t *testing.T) {
 		t.Error("Expected error with invalid key file content")
 	}
 
-	// 写入长度错误的密钥内容
 	os.WriteFile(path, []byte("ab12"), 0600)
 
 	_, err = LoadKey()

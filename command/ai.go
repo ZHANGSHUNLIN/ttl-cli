@@ -116,7 +116,6 @@ var AICmd = &cobra.Command{
 
 		agent := ai.NewAgent(chatWithSpinner, &storeAdapter{})
 
-		// 配置上下文加载器
 		if aiConf.ContextEnabled {
 			contextLoader := ai.NewContextLoader(
 				aiConf.ContextEnabled,
@@ -124,7 +123,6 @@ var AICmd = &cobra.Command{
 				aiConf.ContextMaxRounds,
 				aiConf.ContextMaxTokens,
 			)
-			// 设置回调函数
 			contextLoader.SaveMessage = db.SaveChatMessage
 			contextLoader.GetMessages = db.GetChatMessages
 			contextLoader.ClearMessages = db.ClearChatMessages

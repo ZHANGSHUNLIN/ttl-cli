@@ -13,7 +13,6 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
-// setupTempStorage 创建临时 DB，返回清理函数
 func setupTempStorage(t *testing.T) func() {
 	t.Helper()
 
@@ -41,7 +40,6 @@ func setupTempStorage(t *testing.T) func() {
 	}
 }
 
-// helper: 构造 CallToolRequest
 func makeRequest(args map[string]any) mcp.CallToolRequest {
 	return mcp.CallToolRequest{
 		Params: mcp.CallToolParams{
@@ -50,7 +48,6 @@ func makeRequest(args map[string]any) mcp.CallToolRequest {
 	}
 }
 
-// helper: assert result is success text
 func assertResultText(t *testing.T, result *mcp.CallToolResult, contains string) {
 	t.Helper()
 	if result.IsError {
@@ -62,7 +59,6 @@ func assertResultText(t *testing.T, result *mcp.CallToolResult, contains string)
 	}
 }
 
-// helper: assert result is error
 func assertResultError(t *testing.T, result *mcp.CallToolResult, contains string) {
 	t.Helper()
 	if !result.IsError {
@@ -74,7 +70,6 @@ func assertResultError(t *testing.T, result *mcp.CallToolResult, contains string
 	}
 }
 
-// helper: extract result text
 func resultText(result *mcp.CallToolResult) string {
 	for _, c := range result.Content {
 		if tc, ok := c.(mcp.TextContent); ok {
@@ -83,8 +78,6 @@ func resultText(result *mcp.CallToolResult) string {
 	}
 	return ""
 }
-
-// ==================== ttl_add ====================
 
 func TestTtlAdd_Success(t *testing.T) {
 	cleanup := setupTempStorage(t)
@@ -103,12 +96,10 @@ func TestTtlAdd_DuplicateKey(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
-	// 先添加一次
 	_, _ = handleAdd(context.Background(), makeRequest(map[string]any{
 		"key": "mysite", "value": "v1",
 	}))
 
-	// 再添加同一个 key
 	result, err := handleAdd(context.Background(), makeRequest(map[string]any{
 		"key": "mysite", "value": "v2",
 	}))
@@ -118,13 +109,10 @@ func TestTtlAdd_DuplicateKey(t *testing.T) {
 	assertResultError(t, result, "mcp.key_already_exists")
 }
 
-// ==================== ttl_get ====================
-
 func TestTtlGet_NoArgs(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
-	// 添加数据
 	_, _ = handleAdd(context.Background(), makeRequest(map[string]any{
 		"key": "site1", "value": "v1",
 	}))
@@ -154,7 +142,6 @@ func TestTtlGet_FuzzyMatch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Note: handler output only shows key and tags, not value
 	assertResultText(t, result, "github-repo")
 }
 
@@ -171,13 +158,10 @@ func TestTtlGet_NotFound(t *testing.T) {
 	assertResultError(t, result, "mcp.not_found")
 }
 
-// ==================== ttl_update ====================
-
 func TestTtlUpdate_Success(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
-	// 先添加并打标签
 	_, _ = handleAdd(context.Background(), makeRequest(map[string]any{
 		"key": "mysite", "value": "old-value",
 	}))
@@ -185,7 +169,6 @@ func TestTtlUpdate_Success(t *testing.T) {
 		"key": "mysite", "tags": []any{"t1"},
 	}))
 
-	// 更新
 	result, err := handleUpdate(context.Background(), makeRequest(map[string]any{
 		"key": "mysite", "value": "new-value",
 	}))
@@ -194,8 +177,6 @@ func TestTtlUpdate_Success(t *testing.T) {
 	}
 	assertResultText(t, result, "mcp.added_successfully")
 
-	// Note: get handler output doesn't include value, only key and tags
-	// The successful update confirmation is sufficient
 }
 
 func TestTtlUpdate_NotFound(t *testing.T) {
@@ -210,8 +191,6 @@ func TestTtlUpdate_NotFound(t *testing.T) {
 	}
 	assertResultError(t, result, "mcp.resource_not_found")
 }
-
-// ==================== ttl_delete ====================
 
 func TestTtlDelete_Success(t *testing.T) {
 	cleanup := setupTempStorage(t)
@@ -229,7 +208,6 @@ func TestTtlDelete_Success(t *testing.T) {
 	}
 	assertResultText(t, result, "mcp.deleted_successfully")
 
-	// 验证已删除 - handleGet returns "mcp.not_found" when not found
 	getResult, _ := handleGet(context.Background(), makeRequest(map[string]any{
 		"key": "to-delete",
 	}))
@@ -249,8 +227,6 @@ func TestTtlDelete_NotFound(t *testing.T) {
 	assertResultError(t, result, "mcp.resource_not_found")
 }
 
-// ==================== ttl_tag ====================
-
 func TestTtlTag_Success(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -260,22 +236,19 @@ func TestTtlTag_Success(t *testing.T) {
 	}))
 
 	result, err := handleTag(context.Background(), makeRequest(map[string]any{
-		"key": "res", "tags": []any{"web", "dev", "web"}, // web 重复
+		"key": "res", "tags": []any{"web", "dev", "web"},
 	}))
 	if err != nil {
 		t.Fatal(err)
 	}
 	assertResultText(t, result, "mcp.tag_added_successfully")
 
-	// 验证去重
 	getResult, _ := handleGet(context.Background(), makeRequest(map[string]any{"key": "res"}))
 	text := resultText(getResult)
 	if strings.Count(text, "web") != 1 {
 		t.Errorf("标签未去重: %s", text)
 	}
 }
-
-// ==================== ttl_dtag ====================
 
 func TestTtlDtag_Success(t *testing.T) {
 	cleanup := setupTempStorage(t)
@@ -296,7 +269,6 @@ func TestTtlDtag_Success(t *testing.T) {
 	}
 	assertResultText(t, result, "mcp.tag_deleted_successfully")
 
-	// 验证 "remove" 已移除, "keep" 保留
 	getResult, _ := handleGet(context.Background(), makeRequest(map[string]any{"key": "res"}))
 	text := resultText(getResult)
 	if strings.Contains(text, "remove") {
@@ -306,8 +278,6 @@ func TestTtlDtag_Success(t *testing.T) {
 		t.Errorf("标签 keep 丢失: %s", text)
 	}
 }
-
-// ==================== ttl_rename ====================
 
 func TestTtlRename_Success(t *testing.T) {
 	cleanup := setupTempStorage(t)
@@ -328,19 +298,15 @@ func TestTtlRename_Success(t *testing.T) {
 	}
 	assertResultText(t, result, "mcp.rename_successfully")
 
-	// 旧 key 不存在 - handleGet returns "mcp.not_found" when not found
 	getOld, _ := handleGet(context.Background(), makeRequest(map[string]any{"key": "old-name"}))
 	assertResultError(t, getOld, "mcp.not_found")
 
-	// 新 key 存在
 	getNew, _ := handleGet(context.Background(), makeRequest(map[string]any{"key": "new-name"}))
 	text := resultText(getNew)
 	if !strings.Contains(text, "new-name") {
 		t.Errorf("重命名失败: %s", text)
 	}
 }
-
-// ==================== ttl_list ====================
 
 func TestTtlList_Empty(t *testing.T) {
 	cleanup := setupTempStorage(t)
@@ -374,8 +340,6 @@ func TestTtlList_WithData(t *testing.T) {
 	}
 }
 
-// ==================== ttl_log_add ====================
-
 func TestTtlLogAdd_Success(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -388,7 +352,6 @@ func TestTtlLogAdd_Success(t *testing.T) {
 	}
 	assertResultText(t, result, "mcp.log_recorded")
 
-	// 验证日志确实被保存了
 	listResult, _ := handleLogList(context.Background(), makeRequest(map[string]any{}))
 	text := resultText(listResult)
 	if !strings.Contains(text, "完成用户模块重构") {
@@ -402,22 +365,19 @@ func TestTtlLogAdd_WithTags(t *testing.T) {
 
 	result, err := handleLogAdd(context.Background(), makeRequest(map[string]any{
 		"content": "接口联调完成",
-		"tags":    []any{"项目A", "后端", "项目A"}, // 项目A 重复
+		"tags":    []any{"项目A", "后端", "项目A"},
 	}))
 	if err != nil {
 		t.Fatal(err)
 	}
 	assertResultText(t, result, "mcp.log_recorded")
 
-	// 验证标签去重
 	listResult, _ := handleLogList(context.Background(), makeRequest(map[string]any{}))
 	text := resultText(listResult)
 	if strings.Count(text, "项目A") != 1 {
 		t.Errorf("标签未去重: %s", text)
 	}
 }
-
-// ==================== ttl_log_list ====================
 
 func TestTtlLogList_Today(t *testing.T) {
 	cleanup := setupTempStorage(t)
@@ -448,7 +408,6 @@ func TestTtlLogList_DateFilter(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// 不应该有今天的数据（2024-01-01 不是今天）
 	text := resultText(result)
 	if strings.Contains(text, "工作1") {
 		t.Errorf("日期过滤失败: %s", text)
@@ -491,8 +450,6 @@ func TestTtlLogList_Empty(t *testing.T) {
 	assertResultText(t, result, "mcp.no_log_records")
 }
 
-// ==================== ttl_log_delete ====================
-
 func TestTtlLogDelete_Success(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -501,15 +458,13 @@ func TestTtlLogDelete_Success(t *testing.T) {
 		"content": "待删除",
 	}))
 	_ = resultText(addResult)
-	// 提取日志 ID (简化处理，实际应从返回文本中解析)
 
 	result, err := handleLogDelete(context.Background(), makeRequest(map[string]any{
-		"id": 1234567890, // 使用一个测试 ID
+		"id": 1234567890,
 	}))
 	if err != nil {
 		t.Fatal(err)
 	}
-	// 由于 ID 不匹配，会返回错误，但至少验证 handler 可以调用
 	_ = result
 }
 
@@ -525,8 +480,6 @@ func TestTtlLogDelete_NotFound(t *testing.T) {
 	}
 	assertResultError(t, result, "mcp.id_required")
 }
-
-// ==================== ttl_export ====================
 
 func TestTtlExport_Resources(t *testing.T) {
 	cleanup := setupTempStorage(t)
@@ -579,7 +532,6 @@ func TestTtlExport_Empty(t *testing.T) {
 		t.Fatal(err)
 	}
 	text := resultText(result)
-	// 空数据仍应输出 header
 	if !strings.Contains(text, "key,value,tags") {
 		t.Errorf("导出空数据应包含 header: %s", text)
 	}
