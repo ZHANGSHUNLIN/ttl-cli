@@ -4,7 +4,6 @@ import (
 	"testing"
 )
 
-// TestGetTtlConf 测试获取配置
 func TestGetTtlConf(t *testing.T) {
 	tests := []struct {
 		name          string
@@ -38,7 +37,6 @@ func TestGetTtlConf(t *testing.T) {
 	}
 }
 
-// TestInitConfig 测试初始化配置
 func TestInitConfig(t *testing.T) {
 	tests := []struct {
 		name          string
@@ -52,7 +50,6 @@ func TestInitConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// 由于 InitConfig 是私有函数或没有公开，我们测试通过 GetTtlConf 来间接测试
 			_, err := GetTtlConf()
 
 			if tt.expectedError {

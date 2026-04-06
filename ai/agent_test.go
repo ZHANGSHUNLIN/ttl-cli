@@ -69,26 +69,18 @@ func (m *mockStore) DeleteLogRecord(id int64) error {
 	return fmt.Errorf("log record not found")
 }
 
-// mockReActChat 基于 len(messages) 路由的 mock ChatFunc（适配 ReAct 多轮）
-// round1Resp 在 len(messages)==2 时返回（首轮：system + user）
-// round2Resp 在 len(messages)==4 时返回（第二轮：+assistant +observation）
-// 以此类推
 func mockReActChat(responses ...string) ChatFunc {
 	return func(messages []Message) (string, error) {
-		// len(messages) == 2 → round 1, == 4 → round 2, == 6 → round 3, ...
-		round := (len(messages) - 2) / 2 // 0-based
+		round := (len(messages) - 2) / 2
 		if round < 0 {
 			round = 0
 		}
 		if round < len(responses) {
 			return responses[round], nil
 		}
-		// 兜底：返回 answer
 		return `{"thought":"done","action":"answer","params":{"message":"完成"}}`, nil
 	}
 }
-
-// --- parseStep 测试 ---
 
 func TestParseStep_ValidJSON(t *testing.T) {
 	step, err := parseStep(`{"thought":"查docker","action":"get","params":{"keyword":"docker"}}`)
@@ -142,8 +134,6 @@ func TestParseStep_AnswerAction(t *testing.T) {
 		t.Errorf("message = %s, want greeting", step.Params["message"])
 	}
 }
-
-// --- 执行操作测试 ---
 
 func TestExecAdd_Success(t *testing.T) {
 	store := newMockStore()
@@ -202,11 +192,9 @@ func TestExecGet_All(t *testing.T) {
 	if !strings.Contains(result, "2 条") {
 		t.Errorf("result = %s, should show 2 resources", result)
 	}
-	// 隐私保护：不应包含 val
 	if strings.Contains(result, "va") || strings.Contains(result, "vb") {
 		t.Errorf("result should NOT contain val, got %s", result)
 	}
-	// 应包含 tag
 	if !strings.Contains(result, "tag-a") {
 		t.Errorf("result should contain tag, got %s", result)
 	}
@@ -228,11 +216,9 @@ func TestExecGet_Keyword(t *testing.T) {
 	if strings.Contains(result, "go-notes") {
 		t.Errorf("result should not contain go-notes, got %s", result)
 	}
-	// 隐私保护：不应包含 val
 	if strings.Contains(result, "https://docker.com") {
 		t.Errorf("result should NOT contain val (URL), got %s", result)
 	}
-	// 应包含 tag
 	if !strings.Contains(result, "运维") {
 		t.Errorf("result should contain tag, got %s", result)
 	}
@@ -296,11 +282,9 @@ func TestExecOpen_Success(t *testing.T) {
 	if !strings.Contains(result, "已打开") {
 		t.Errorf("result = %s, should contain 已打开", result)
 	}
-	// OpenFn 应收到正确的 val
 	if opened != "https://example.com" {
 		t.Errorf("opened = %s, want https://example.com", opened)
 	}
-	// 隐私保护：Observation 不应包含 val
 	if strings.Contains(result, "https://example.com") {
 		t.Errorf("result should NOT contain val (URL), got %s", result)
 	}
@@ -333,7 +317,6 @@ func TestExecOpen_MultipleMatches(t *testing.T) {
 	if !strings.Contains(result, "缩小范围") {
 		t.Errorf("result = %s, should prompt to narrow down", result)
 	}
-	// 隐私保护：候选列表不应包含 val
 	if strings.Contains(result, "https://a.com") || strings.Contains(result, "https://b.com") {
 		t.Errorf("result should NOT contain val (URLs), got %s", result)
 	}
@@ -381,7 +364,6 @@ func TestExecDelete_NeedsConfirm(t *testing.T) {
 	if !strings.Contains(result, "即将删除") {
 		t.Errorf("result = %s, should prompt for confirmation", result)
 	}
-	// 隐私保护：确认提示不应包含 val
 	if strings.Contains(result, "some value") {
 		t.Errorf("result should NOT contain val, got %s", result)
 	}
@@ -529,10 +511,7 @@ func TestExecute_UnknownAction(t *testing.T) {
 	}
 }
 
-// --- ReAct Run 端到端测试 ---
-
 func TestRun_SingleRound_Answer(t *testing.T) {
-	// 简单闲聊：第一轮直接 answer
 	chatFn := mockReActChat(`{"thought":"用户打招呼","action":"answer","params":{"message":"你好，我是 ttl 助手"}}`)
 	agent := NewAgent(chatFn, newMockStore())
 
@@ -546,7 +525,6 @@ func TestRun_SingleRound_Answer(t *testing.T) {
 }
 
 func TestRun_SingleRound_Add(t *testing.T) {
-	// 直接新增：第一轮 add → Observation → 第二轮 answer
 	store := newMockStore()
 	chatFn := mockReActChat(
 		`{"thought":"用户要添加笔记","action":"add","params":{"key":"my-note","value":"some note"}}`,
@@ -588,7 +566,6 @@ func TestRun_SingleRound_Get(t *testing.T) {
 }
 
 func TestRun_MultiRound_Summary(t *testing.T) {
-	// 总结场景：先 get 获取数据 → 再 answer 总结
 	store := newMockStore()
 	store.resources[models.ValJsonKey{Key: "log1", Type: models.ORIGIN}] = models.ValJson{Val: "日志内容1", Tag: []string{"日志"}}
 	store.resources[models.ValJsonKey{Key: "log2", Type: models.ORIGIN}] = models.ValJson{Val: "日志内容2", Tag: []string{"日志"}}
@@ -609,7 +586,6 @@ func TestRun_MultiRound_Summary(t *testing.T) {
 }
 
 func TestRun_MultiRound_SearchThenOpen(t *testing.T) {
-	// 搜索 → 匹配唯一 → 打开
 	store := newMockStore()
 	store.resources[models.ValJsonKey{Key: "sugar-board", Type: models.ORIGIN}] = models.ValJson{Val: "https://sugar.example.com"}
 
@@ -637,7 +613,6 @@ func TestRun_MultiRound_SearchThenOpen(t *testing.T) {
 }
 
 func TestRun_InvalidJSON_Fallback(t *testing.T) {
-	// LLM 返回非 JSON → 降级为直接回复
 	chatFn := mockReActChat("这不是有效的JSON，我直接回复你")
 	agent := NewAgent(chatFn, newMockStore())
 
@@ -666,7 +641,6 @@ func TestRun_LLMError(t *testing.T) {
 }
 
 func TestRun_MaxSteps_Exceeded(t *testing.T) {
-	// 每轮都返回 get，永远不 answer → 超过 MaxSteps
 	chatFn := func(messages []Message) (string, error) {
 		return `{"thought":"继续查","action":"get","params":{"keyword":"test"}}`, nil
 	}
@@ -681,20 +655,16 @@ func TestRun_MaxSteps_Exceeded(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Run error: %v", err)
 	}
-	// 应该返回最后一次 Observation（get 的结果）
 	if !strings.Contains(result, "test") {
 		t.Errorf("result = %s, should contain last observation", result)
 	}
 }
 
 func TestRun_ExecuteError_AsObservation(t *testing.T) {
-	// 执行失败 → 错误作为 Observation 回传 → LLM 可以纠正
 	store := newMockStore()
 
 	chatFn := mockReActChat(
-		// 第一轮：试图更新不存在的资源
 		`{"thought":"更新资源","action":"update","params":{"key":"nonexistent","value":"new"}}`,
-		// 第二轮：收到"未找到"后 answer
 		`{"thought":"资源不存在","action":"answer","params":{"message":"未找到该资源，请确认名称"}}`,
 	)
 	agent := NewAgent(chatFn, store)
@@ -709,7 +679,6 @@ func TestRun_ExecuteError_AsObservation(t *testing.T) {
 }
 
 func TestRun_ThreeRounds(t *testing.T) {
-	// 三轮：get all → get keyword → answer
 	store := newMockStore()
 	store.resources[models.ValJsonKey{Key: "work-doc", Type: models.ORIGIN}] = models.ValJson{Val: "工作文档", Tag: []string{"工作"}}
 	store.resources[models.ValJsonKey{Key: "life-note", Type: models.ORIGIN}] = models.ValJson{Val: "生活笔记", Tag: []string{"生活"}}
@@ -729,8 +698,6 @@ func TestRun_ThreeRounds(t *testing.T) {
 		t.Errorf("result = %s, should contain work-doc", result)
 	}
 }
-
-// --- Log 操作测试 ---
 
 func TestExecLogWrite_Success(t *testing.T) {
 	store := newMockStore()
@@ -814,7 +781,6 @@ func TestExecLogList_FilterByTag(t *testing.T) {
 }
 
 func TestRun_LogWriteThenSummary(t *testing.T) {
-	// 多步：log_write → log_list → answer（周报总结）
 	store := newMockStore()
 	store.logs = []models.LogRecord{
 		{ID: 1, Content: "完成用户模块", Tags: []string{"项目A"}, CreatedAt: "2026-04-01 10:00:00", Date: "2026-04-01"},
@@ -837,8 +803,6 @@ func TestRun_LogWriteThenSummary(t *testing.T) {
 	}
 }
 
-// --- truncateObservation 测试 ---
-
 func TestTruncateObservation_Short(t *testing.T) {
 	result := truncateObservation("short text", 100)
 	if result != "short text" {
@@ -847,7 +811,6 @@ func TestTruncateObservation_Short(t *testing.T) {
 }
 
 func TestTruncateObservation_Long(t *testing.T) {
-	// 构造超长文本
 	lines := make([]string, 100)
 	for i := range lines {
 		lines[i] = fmt.Sprintf("line %d: some content here", i)
@@ -855,15 +818,13 @@ func TestTruncateObservation_Long(t *testing.T) {
 	long := strings.Join(lines, "\n")
 
 	result := truncateObservation(long, 200)
-	if len(result) > 250 { // allow extra length for truncation notice
+	if len(result) > 250 {
 		t.Errorf("truncated result too long: %d chars", len(result))
 	}
 	if !strings.Contains(result, "truncated") {
 		t.Errorf("should contain truncation notice, got %s", result)
 	}
 }
-
-// --- cleanJSONResponse 测试 ---
 
 func TestCleanJSONResponse(t *testing.T) {
 	tests := []struct {
@@ -884,8 +845,6 @@ func TestCleanJSONResponse(t *testing.T) {
 	}
 }
 
-// --- matchTags 测试 ---
-
 func TestMatchTags(t *testing.T) {
 	if !matchTags([]string{"Docker", "运维"}, "docker") {
 		t.Error("should match case-insensitive")
@@ -897,8 +856,6 @@ func TestMatchTags(t *testing.T) {
 		t.Error("empty tags should not match")
 	}
 }
-
-// --- 数据隐私保护测试 ---
 
 func TestExecGet_All_NoValInObservation(t *testing.T) {
 	store := newMockStore()
@@ -916,7 +873,6 @@ func TestExecGet_All_NoValInObservation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execGet error: %v", err)
 	}
-	// 应包含 key 和 tag
 	if !strings.Contains(result, "secret-token") || !strings.Contains(result, "internal-url") {
 		t.Errorf("result should contain keys, got %s", result)
 	}
@@ -970,11 +926,9 @@ func TestExecOpen_SingleMatch_NoValInObservation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execOpen error: %v", err)
 	}
-	// OpenFn 应收到完整 val（本地执行）
 	if opened != "https://admin.internal.com/secret-path" {
 		t.Errorf("OpenFn should receive full val, got %s", opened)
 	}
-	// Observation 不应包含 val
 	if strings.Contains(result, "admin.internal.com") || strings.Contains(result, "secret-path") {
 		t.Errorf("result should NOT contain val, got %s", result)
 	}
@@ -1013,7 +967,6 @@ func TestExecLogList_FullContentInObservation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execLogList error: %v", err)
 	}
-	// 日志应包含完整 content（不受隐私保护限制）
 	if !strings.Contains(result, "完成API接口开发") {
 		t.Errorf("result should contain full log content, got %s", result)
 	}

@@ -36,11 +36,10 @@ type ResourceStore interface {
 type OpenFunc func(url string) error
 
 type Agent struct {
-	ChatFn   ChatFunc
-	Store    ResourceStore
-	OpenFn   OpenFunc
-	MaxSteps int
-	// 上下文相关
+	ChatFn        ChatFunc
+	Store         ResourceStore
+	OpenFn        OpenFunc
+	MaxSteps      int
 	ContextLoader *ContextLoader
 }
 
@@ -48,19 +47,16 @@ func NewAgent(chatFn ChatFunc, store ResourceStore) *Agent {
 	return &Agent{ChatFn: chatFn, Store: store, MaxSteps: 5}
 }
 
-// WithContext 设置上下文加载器
 func (a *Agent) WithContext(loader *ContextLoader) *Agent {
 	a.ContextLoader = loader
 	return a
 }
 
 func (a *Agent) Run(input string) (string, error) {
-	// 初始化消息列表，始终包含 system prompt
 	messages := []Message{
 		{Role: "system", Content: ReActSystemPrompt()},
 	}
 
-	// 如果启用了上下文，加载历史消息
 	if a.ContextLoader != nil {
 		history, err := a.ContextLoader.LoadMessages()
 		if err == nil && len(history) > 0 {
@@ -71,11 +67,9 @@ func (a *Agent) Run(input string) (string, error) {
 				})
 			}
 		}
-		// 保存用户输入
 		_ = a.ContextLoader.SaveUserMessage(input)
 	}
 
-	// 添加当前用户输入
 	messages = append(messages, Message{Role: "user", Content: input})
 
 	var lastObservation string
@@ -89,7 +83,6 @@ func (a *Agent) Run(input string) (string, error) {
 
 		step, err := parseStep(resp)
 		if err != nil {
-			// 降级：当作最终回复
 			finalAnswer = resp
 			break
 		}
@@ -118,7 +111,6 @@ func (a *Agent) Run(input string) (string, error) {
 		})
 	}
 
-	// 保存助手回复
 	if a.ContextLoader != nil && finalAnswer != "" {
 		_ = a.ContextLoader.SaveAssistantMessage(finalAnswer)
 	}
@@ -137,7 +129,6 @@ func parseStep(resp string) (*Step, error) {
 
 	var step Step
 	if err := json.Unmarshal([]byte(cleaned), &step); err != nil {
-		// 调试：打印解析失败的原始内容
 		return nil, fmt.Errorf("JSON 解析失败: %w, 原始内容: %q", err, resp)
 	}
 
@@ -705,8 +696,6 @@ func (a *Agent) execExport(params map[string]string) (string, error) {
 		exportType = "resources"
 	}
 
-	// export action 只返回导出数据摘要，不实际写文件
-	// 原因：AI 环境下无法直接写文件，用户需要用 `ttl export` 命令
 	switch exportType {
 	case "resources":
 		resources, err := a.Store.GetAllResources()

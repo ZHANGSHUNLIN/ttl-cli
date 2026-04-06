@@ -9,7 +9,6 @@ import (
 	"ttl-cli/models"
 )
 
-// dbStoreAdapter 将 db 全局函数适配为 ai.ResourceStore 接口
 type dbStoreAdapter struct{}
 
 func (d *dbStoreAdapter) GetAllResources() (map[models.ValJsonKey]models.ValJson, error) {
@@ -40,7 +39,6 @@ func (d *dbStoreAdapter) DeleteLogRecord(id int64) error {
 	return db.DeleteLogRecord(id)
 }
 
-// mockReActChat 基于 len(messages) 路由的 mock（适配 ReAct 多轮）
 func mockReActChat(responses ...string) ai.ChatFunc {
 	return func(messages []ai.Message) (string, error) {
 		round := (len(messages) - 2) / 2
@@ -54,14 +52,12 @@ func mockReActChat(responses ...string) ai.ChatFunc {
 	}
 }
 
-// TestAI_AddAndGet 端到端测试：通过 AI Agent 添加资源然后查询
 func TestAI_AddAndGet(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
 	store := &dbStoreAdapter{}
 
-	// Step 1: 通过 AI 添加资源（ReAct: add → answer）
 	addChat := mockReActChat(
 		`{"thought":"用户要记笔记","action":"add","params":{"key":"test-note","value":"这是一条测试笔记"}}`,
 		`{"thought":"添加成功","action":"answer","params":{"message":"已保存：test-note"}}`,
@@ -76,7 +72,6 @@ func TestAI_AddAndGet(t *testing.T) {
 		t.Errorf("add result = %s, should contain 已保存", result)
 	}
 
-	// 验证资源确实写入了 bbolt
 	resources, err := db.GetAllResources()
 	if err != nil {
 		t.Fatalf("GetAllResources error: %v", err)
@@ -90,7 +85,6 @@ func TestAI_AddAndGet(t *testing.T) {
 		t.Errorf("value = %s, want 这是一条测试笔记", v.Val)
 	}
 
-	// Step 2: 通过 AI 查询资源（ReAct: get → answer）
 	getChat := mockReActChat(
 		`{"thought":"查test","action":"get","params":{"keyword":"test"}}`,
 		`{"thought":"找到了","action":"answer","params":{"message":"找到 test-note"}}`,
@@ -106,21 +100,18 @@ func TestAI_AddAndGet(t *testing.T) {
 	}
 }
 
-// TestAI_UpdatePreservesTags 端到端测试：AI 更新资源时保留标签
 func TestAI_UpdatePreservesTags(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
 	store := &dbStoreAdapter{}
 
-	// 先直接写入一条带标签的资源
 	k := models.ValJsonKey{Key: "my-link", Type: models.ORIGIN}
 	v := models.ValJson{Val: "https://old.com", Tag: []string{"工作", "收藏"}}
 	if err := db.SaveResource(k, v); err != nil {
 		t.Fatalf("save error: %v", err)
 	}
 
-	// 通过 AI 更新（ReAct: update → answer）
 	updateChat := mockReActChat(
 		`{"thought":"更新链接","action":"update","params":{"key":"my-link","value":"https://new.com"}}`,
 		`{"thought":"更新成功","action":"answer","params":{"message":"已更新：my-link → https://new.com"}}`,
@@ -135,7 +126,6 @@ func TestAI_UpdatePreservesTags(t *testing.T) {
 		t.Errorf("update result = %s, should contain 已更新", result)
 	}
 
-	// 验证值更新了，标签保留
 	resources, _ := db.GetAllResources()
 	updated := resources[k]
 	if updated.Val != "https://new.com" {
@@ -146,21 +136,18 @@ func TestAI_UpdatePreservesTags(t *testing.T) {
 	}
 }
 
-// TestAI_DeleteConfirmFlow 端到端测试：删除需要确认
 func TestAI_DeleteConfirmFlow(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
 	store := &dbStoreAdapter{}
 
-	// 写入资源
 	k := models.ValJsonKey{Key: "temp-item", Type: models.ORIGIN}
 	v := models.ValJson{Val: "临时数据", Tag: []string{}}
 	if err := db.SaveResource(k, v); err != nil {
 		t.Fatalf("save error: %v", err)
 	}
 
-	// AI 识别为删除（ReAct: delete with confirm=false → answer）
 	deleteChat := mockReActChat(
 		`{"thought":"用户要删除","action":"delete","params":{"key":"temp-item","confirm":"false"}}`,
 		`{"thought":"需要确认","action":"answer","params":{"message":"即将删除 temp-item，请确认"}}`,
@@ -175,28 +162,24 @@ func TestAI_DeleteConfirmFlow(t *testing.T) {
 		t.Errorf("delete result = %s, should prompt confirmation", result)
 	}
 
-	// 资源应该还在
 	resources, _ := db.GetAllResources()
 	if _, ok := resources[k]; !ok {
 		t.Error("resource should still exist (not confirmed)")
 	}
 }
 
-// TestAI_TagAndDtag 端到端测试：打标签和删标签
 func TestAI_TagAndDtag(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
 	store := &dbStoreAdapter{}
 
-	// 写入资源
 	k := models.ValJsonKey{Key: "article", Type: models.ORIGIN}
 	v := models.ValJson{Val: "文章内容", Tag: []string{}}
 	if err := db.SaveResource(k, v); err != nil {
 		t.Fatalf("save error: %v", err)
 	}
 
-	// AI 打标签（ReAct: tag → answer）
 	tagChat := mockReActChat(
 		`{"thought":"打标签","action":"tag","params":{"key":"article","tags":"技术, 收藏"}}`,
 		`{"thought":"成功","action":"answer","params":{"message":"已添加标签"}}`,
@@ -216,7 +199,6 @@ func TestAI_TagAndDtag(t *testing.T) {
 		t.Errorf("tags = %v, want 2 tags", resources[k].Tag)
 	}
 
-	// AI 删标签（ReAct: dtag → answer）
 	dtagChat := mockReActChat(
 		`{"thought":"删标签","action":"dtag","params":{"key":"article","tag":"收藏"}}`,
 		`{"thought":"成功","action":"answer","params":{"message":"已删除标签"}}`,
@@ -237,7 +219,6 @@ func TestAI_TagAndDtag(t *testing.T) {
 	}
 }
 
-// TestAI_Rename 端到端测试：重命名
 func TestAI_Rename(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -274,14 +255,12 @@ func TestAI_Rename(t *testing.T) {
 	}
 }
 
-// TestAI_Summary_MultiStep 端到端测试：总结功能（ReAct 多步：get → answer 总结）
 func TestAI_Summary_MultiStep(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
 	store := &dbStoreAdapter{}
 
-	// 写入几条资源
 	for i := 0; i < 3; i++ {
 		k := models.ValJsonKey{Key: strings.ReplaceAll("log-{i}", "{i}", string(rune('1'+i))), Type: models.ORIGIN}
 		v := models.ValJson{Val: "日志内容" + string(rune('1'+i)), Tag: []string{"日志"}}
@@ -290,7 +269,6 @@ func TestAI_Summary_MultiStep(t *testing.T) {
 		}
 	}
 
-	// ReAct: get → answer（总结）
 	summaryChat := mockReActChat(
 		`{"thought":"用户要总结日志，先查看数据","action":"get","params":{"keyword":"日志"}}`,
 		`{"thought":"拿到日志数据，生成总结","action":"answer","params":{"message":"共有3条日志记录，内容涵盖日志1到日志3。"}}`,
@@ -306,7 +284,6 @@ func TestAI_Summary_MultiStep(t *testing.T) {
 	}
 }
 
-// TestAI_ChatAnswer 端到端测试：闲聊直接 answer
 func TestAI_ChatAnswer(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -327,7 +304,6 @@ func TestAI_ChatAnswer(t *testing.T) {
 	}
 }
 
-// TestAI_InvalidJSON_Fallback 端到端测试：LLM 返回非法 JSON 降级为直接回复
 func TestAI_InvalidJSON_Fallback(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -346,21 +322,18 @@ func TestAI_InvalidJSON_Fallback(t *testing.T) {
 	}
 }
 
-// TestAI_StorageIsolation 确认 AI 操作和直接 db 操作使用同一存储
 func TestAI_StorageIsolation(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
 	store := &dbStoreAdapter{}
 
-	// 通过 db 包直接添加
 	k := models.ValJsonKey{Key: "direct-add", Type: models.ORIGIN}
 	v := models.ValJson{Val: "direct value", Tag: []string{}}
 	if err := db.SaveResource(k, v); err != nil {
 		t.Fatalf("save error: %v", err)
 	}
 
-	// 通过 AI 查询（ReAct: get → answer）
 	getChat := mockReActChat(
 		`{"thought":"查direct","action":"get","params":{"keyword":"direct"}}`,
 		`{"thought":"找到了","action":"answer","params":{"message":"找到 direct-add"}}`,
@@ -376,25 +349,21 @@ func TestAI_StorageIsolation(t *testing.T) {
 	}
 }
 
-// TestAI_Privacy_GetObservationNoVal 端到端隐私测试：get 的 Observation 不包含敏感 val
 func TestAI_Privacy_GetObservationNoVal(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
 	store := &dbStoreAdapter{}
 
-	// 写入含敏感信息的资源
 	k := models.ValJsonKey{Key: "prod-db-password", Type: models.ORIGIN}
 	v := models.ValJson{Val: "root:SecretP@ss@192.168.1.100:3306", Tag: []string{"数据库", "生产"}}
 	if err := db.SaveResource(k, v); err != nil {
 		t.Fatalf("save error: %v", err)
 	}
 
-	// 拦截 messages，检查 Observation 内容
 	var observationContent string
 	chatFn := func(messages []ai.Message) (string, error) {
 		round := (len(messages) - 2) / 2
-		// 第二轮时，messages[3] 是 Observation
 		if round == 1 && len(messages) >= 4 {
 			observationContent = messages[3].Content
 		}
@@ -412,14 +381,12 @@ func TestAI_Privacy_GetObservationNoVal(t *testing.T) {
 		t.Fatalf("AI get error: %v", err)
 	}
 
-	// 验证 Observation 中不包含敏感 val
 	if strings.Contains(observationContent, "SecretP@ss") {
 		t.Errorf("Observation should NOT contain password, got: %s", observationContent)
 	}
 	if strings.Contains(observationContent, "192.168.1.100") {
 		t.Errorf("Observation should NOT contain IP, got: %s", observationContent)
 	}
-	// 应包含 key 和 tag
 	if !strings.Contains(observationContent, "prod-db-password") {
 		t.Errorf("Observation should contain key, got: %s", observationContent)
 	}

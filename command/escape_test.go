@@ -5,7 +5,6 @@ import (
 	"ttl-cli/util"
 )
 
-// TestUnescapeString 测试转义字符功能（add/update 使用）
 func TestUnescapeString(t *testing.T) {
 	testCases := []struct {
 		name     string
@@ -34,7 +33,6 @@ func TestUnescapeString(t *testing.T) {
 	}
 }
 
-// TestEscapeString 测试转义字符功能
 func TestEscapeString(t *testing.T) {
 	testCases := []struct {
 		name     string
@@ -62,7 +60,6 @@ func TestEscapeString(t *testing.T) {
 	}
 }
 
-// TestEscapeUnescapeRoundtrip 测试转义与还原的一致性
 func TestEscapeUnescapeRoundtrip(t *testing.T) {
 	testValues := []string{
 		"simple text",

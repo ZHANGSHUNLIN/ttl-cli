@@ -36,7 +36,6 @@ func setupTempStorage(t *testing.T) func() {
 	}
 }
 
-// helper: 向 ResourcesHandler 发请求
 func doResources(t *testing.T, method, target string, body any) *httptest.ResponseRecorder {
 	t.Helper()
 	var bodyReader io.Reader
@@ -53,7 +52,6 @@ func doResources(t *testing.T, method, target string, body any) *httptest.Respon
 	return w
 }
 
-// helper: 向 ResourceHandler 发请求（带 path 参数）
 func doResource(t *testing.T, method, target string, body any) *httptest.ResponseRecorder {
 	t.Helper()
 	var bodyReader io.Reader
@@ -79,8 +77,6 @@ func parseResponse(t *testing.T, w *httptest.ResponseRecorder) Response {
 	return resp
 }
 
-// ==================== GET /api/v1/resources ====================
-
 func TestGetResources_Empty(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -100,7 +96,6 @@ func TestGetResources_WithData(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
-	// 直接通过 db 插入数据
 	_ = db.SaveResource(models.ValJsonKey{Key: "site", Type: models.ORIGIN}, models.ValJson{Val: "v1", Tag: []string{}})
 
 	w := doResources(t, http.MethodGet, "/api/v1/resources", nil)
@@ -132,8 +127,6 @@ func TestGetResources_Search(t *testing.T) {
 	}
 }
 
-// ==================== POST /api/v1/resources ====================
-
 func TestPostResource_Success(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -160,8 +153,6 @@ func TestPostResource_Duplicate(t *testing.T) {
 	}
 }
 
-// ==================== PUT /api/v1/resources/{key} ====================
-
 func TestPutResource_Success(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -173,7 +164,6 @@ func TestPutResource_Success(t *testing.T) {
 	if resp.Code != 0 {
 		t.Fatalf("code=%d, msg=%s", resp.Code, resp.Message)
 	}
-	// 验证 tag 保留
 	data, _ := json.Marshal(resp.Data)
 	if !bytes.Contains(data, []byte("t1")) {
 		t.Errorf("tag 丢失: %s", data)
@@ -190,8 +180,6 @@ func TestPutResource_NotFound(t *testing.T) {
 	}
 }
 
-// ==================== DELETE /api/v1/resources/{key} ====================
-
 func TestDeleteResource_Success(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -204,15 +192,12 @@ func TestDeleteResource_Success(t *testing.T) {
 		t.Fatalf("code=%d, msg=%s", resp.Code, resp.Message)
 	}
 
-	// 验证已删除
 	resources, _ := db.GetAllResources()
 	vjk := models.ValJsonKey{Key: "del-me", Type: models.ORIGIN}
 	if _, exists := resources[vjk]; exists {
 		t.Error("资源未被删除")
 	}
 }
-
-// ==================== POST /api/v1/resources/{key}/tags ====================
 
 func TestPostTags_Success(t *testing.T) {
 	cleanup := setupTempStorage(t)
@@ -226,13 +211,10 @@ func TestPostTags_Success(t *testing.T) {
 		t.Fatalf("code=%d, msg=%s", resp.Code, resp.Message)
 	}
 	data, _ := json.Marshal(resp.Data)
-	// existing 不应重复
 	if bytes.Count(data, []byte("existing")) != 1 {
 		t.Errorf("标签未去重: %s", data)
 	}
 }
-
-// ==================== DELETE /api/v1/resources/{key}/tags/{tag} ====================
 
 func TestDeleteTag_Success(t *testing.T) {
 	cleanup := setupTempStorage(t)
@@ -251,8 +233,6 @@ func TestDeleteTag_Success(t *testing.T) {
 	}
 }
 
-// ==================== POST /api/v1/resources/{key}/rename ====================
-
 func TestRenameResource_Success(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -265,7 +245,6 @@ func TestRenameResource_Success(t *testing.T) {
 		t.Fatalf("code=%d, msg=%s", resp.Code, resp.Message)
 	}
 
-	// 验证旧 key 消失
 	resources, _ := db.GetAllResources()
 	if _, exists := resources[models.ValJsonKey{Key: "old", Type: models.ORIGIN}]; exists {
 		t.Error("旧 key 未删除")
@@ -274,8 +253,6 @@ func TestRenameResource_Success(t *testing.T) {
 		t.Error("新 key 不存在")
 	}
 }
-
-// ==================== Auth Middleware ====================
 
 func TestAuthMiddleware_NoKey(t *testing.T) {
 	handler := AuthMiddleware("secret", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

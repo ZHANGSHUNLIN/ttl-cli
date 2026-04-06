@@ -81,7 +81,7 @@ func UnescapeString(s string) string {
 				result.WriteByte('\\')
 				result.WriteByte(s[i+1])
 			}
-			i++ // 跳过转义字符
+			i++
 		} else {
 			result.WriteByte(s[i])
 		}

@@ -20,30 +20,24 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// OutputWriter 用于输出，默认为 os.Stdout，测试时可替换
 var OutputWriter io.Writer = os.Stdout
 
-// SetOutputWriter 设置输出 writer（用于测试）
 func SetOutputWriter(w io.Writer) {
 	OutputWriter = w
 }
 
-// ResetOutputWriter 重置输出 writer
 func ResetOutputWriter() {
 	OutputWriter = os.Stdout
 }
 
-// Print 打印输出
 func Print(a ...any) (n int, err error) {
 	return fmt.Fprint(OutputWriter, a...)
 }
 
-// Printf 格式化打印输出
 func Printf(format string, a ...any) (n int, err error) {
 	return fmt.Fprintf(OutputWriter, format, a...)
 }
 
-// Println 打印一行输出
 func Println(a ...any) (n int, err error) {
 	return fmt.Fprintln(OutputWriter, a...)
 }
@@ -110,7 +104,6 @@ var GetCmd = &cobra.Command{
 			Println(i18n.T("command.get.no_filter_notice"))
 			Println()
 
-			// 按创建时间倒序排序
 			type resourceWithKey struct {
 				key models.ValJsonKey
 				val models.ValJson
@@ -345,13 +338,11 @@ var ConfigCmd = &cobra.Command{
 	Short: i18n.T("command.config.short"),
 	Long:  i18n.T("command.config.long"),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// 获取当前配置以确定存储类型
 		ttlConf, err := conf.GetTtlConf()
 		if err != nil {
 			return fmt.Errorf(i18n.T("command.config.error_get_path"), err)
 		}
 
-		// 获取对应存储类型的数据库路径
 		dbPath, err := db.GetDBPath("", ttlConf.StorageType)
 		if err != nil {
 			return fmt.Errorf(i18n.T("command.config.error_get_path"), err)
@@ -473,7 +464,6 @@ var configAIContextCmd = &cobra.Command{
 		Println("配置多轮对话上下文")
 		Println()
 
-		// context_enabled
 		defaultEnabled := "n"
 		if existing.ContextEnabled {
 			defaultEnabled = "y"
@@ -488,7 +478,6 @@ var configAIContextCmd = &cobra.Command{
 		var idleTTL, maxRounds, maxTokens int
 
 		if enabled {
-			// context_idle_ttl
 			defaultIdleTTL := existing.ContextIdleTTL
 			if defaultIdleTTL == 0 {
 				defaultIdleTTL = 30
@@ -503,7 +492,6 @@ var configAIContextCmd = &cobra.Command{
 				idleTTL = defaultIdleTTL
 			}
 
-			// context_max_rounds
 			defaultMaxRounds := existing.ContextMaxRounds
 			if defaultMaxRounds == 0 {
 				defaultMaxRounds = 10
@@ -518,7 +506,6 @@ var configAIContextCmd = &cobra.Command{
 				maxRounds = defaultMaxRounds
 			}
 
-			// context_max_tokens
 			defaultMaxTokens := existing.ContextMaxTokens
 			if defaultMaxTokens == 0 {
 				defaultMaxTokens = 4000
@@ -534,7 +521,6 @@ var configAIContextCmd = &cobra.Command{
 			}
 		}
 
-		// 保存配置
 		aiConf := existing
 		aiConf.ContextEnabled = enabled
 		aiConf.ContextIdleTTL = idleTTL

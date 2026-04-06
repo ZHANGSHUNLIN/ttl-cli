@@ -24,7 +24,6 @@ var InitCmd = &cobra.Command{
 }
 
 func runInit() error {
-	// 1. 检测 shell 类型
 	shell := detectShell()
 	Println(i18n.T("command.init.detected_shell", shell))
 
@@ -35,7 +34,6 @@ func runInit() error {
 		return nil
 	}
 
-	// 2. 创建补全脚本目录
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return errors.New(i18n.T("command.init.error_home_dir", err))
@@ -46,7 +44,6 @@ func runInit() error {
 		return errors.New(i18n.T("command.init.error_create_dir", err))
 	}
 
-	// 3. 生成补全脚本
 	scriptPath, err := generateCompletionScript(shell, completionDir)
 	if err != nil {
 		return errors.New(i18n.T("command.init.error_generate", err))
@@ -54,13 +51,11 @@ func runInit() error {
 
 	Println(i18n.T("command.init.script_created", scriptPath))
 
-	// 4. 配置 shellrc
 	rcFile, err := setupShellRC(shell, scriptPath)
 	if err != nil {
 		return errors.New(i18n.T("command.init.error_setup_rc", err))
 	}
 
-	// 5. 输出结果
 	Println()
 	Println(i18n.T("command.init.success"))
 	Println(i18n.T("command.init.script_path", scriptPath))
@@ -71,7 +66,6 @@ func runInit() error {
 		Println(i18n.T("command.init.reload_hint"))
 		Printf("  source %s\n", rcFile)
 	} else {
-		// rcFile 为空表示已配置，无需再次配置
 		Println(i18n.T("command.init.already_configured"))
 		Println()
 	}
@@ -79,19 +73,16 @@ func runInit() error {
 	return nil
 }
 
-// detectShell 检测当前 shell 类型
 func detectShell() string {
 	shell := os.Getenv("SHELL")
 	if shell == "" {
 		return "unknown"
 	}
 
-	// 提取最后一部分: /bin/zsh -> zsh
 	if idx := strings.LastIndex(shell, "/"); idx >= 0 {
 		shell = shell[idx+1:]
 	}
 
-	// 标准化名称
 	switch shell {
 	case "zsh", "bash", "fish":
 		return shell
@@ -100,7 +91,6 @@ func detectShell() string {
 	}
 }
 
-// generateCompletionScript 生成补全脚本
 func generateCompletionScript(shell string, completionDir string) (string, error) {
 	var scriptName string
 	switch shell {
@@ -116,9 +106,7 @@ func generateCompletionScript(shell string, completionDir string) (string, error
 
 	scriptPath := filepath.Join(completionDir, scriptName)
 
-	// 调用 ttl completion <shell> 生成脚本
 	cmd := exec.Command(os.Args[0], "__complete", shell)
-	// 使用 cobra 内置的 completion 命令
 	cmd = exec.Command(os.Args[0], "completion", shell)
 	output, err := cmd.Output()
 	if err != nil {
@@ -132,7 +120,6 @@ func generateCompletionScript(shell string, completionDir string) (string, error
 	return scriptPath, nil
 }
 
-// setupShellRC 配置 shellrc
 func setupShellRC(shell string, scriptPath string) (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -144,7 +131,6 @@ func setupShellRC(shell string, scriptPath string) (string, error) {
 	case "zsh":
 		rcFile = filepath.Join(homeDir, ".zshrc")
 	case "bash":
-		// 优先使用 .bashrc，如果不存在则使用 .bash_profile
 		bashrc := filepath.Join(homeDir, ".bashrc")
 		bashProfile := filepath.Join(homeDir, ".bash_profile")
 		if _, err := os.Stat(bashrc); err == nil {
@@ -158,29 +144,23 @@ func setupShellRC(shell string, scriptPath string) (string, error) {
 		return "", nil
 	}
 
-	// 检测标记
 	markerStart := "# >>> ttl completion >>>"
 	markerEnd := "# <<< ttl completion <<<"
 
-	// 读取现有内容
 	content, err := os.ReadFile(rcFile)
 	if err != nil && !os.IsNotExist(err) {
 		return "", err
 	}
 
-	// 检查是否已配置
 	if strings.Contains(string(content), markerStart) {
-		// 已配置，返回空字符串表示跳过
 		return "", nil
 	}
 
-	// 创建目录（针对 fish）
 	rcDir := filepath.Dir(rcFile)
 	if err := os.MkdirAll(rcDir, 0755); err != nil {
 		return "", err
 	}
 
-	// 追加配置
 	var sourceLine string
 	if shell == "fish" {
 		sourceLine = fmt.Sprintf("\n%s\nsource %s\n%s\n", markerStart, scriptPath, markerEnd)

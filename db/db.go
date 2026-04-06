@@ -38,7 +38,6 @@ type Storage interface {
 	SaveLogRecord(record models.LogRecord) error
 	GetLogRecords(startDate, endDate string) ([]models.LogRecord, error)
 	DeleteLogRecord(id int64) error
-	// Chat history methods
 	SaveChatMessage(sessionID string, message models.ChatMessage) error
 	GetChatMessages(sessionID string) ([]models.ChatMessage, error)
 	ClearChatMessages(sessionID string) error
@@ -80,10 +79,9 @@ func (ls *LocalStorage) Init() error {
 		return fmt.Errorf("创建目录失败: %w", err)
 	}
 
-	// 设置超时时间，避免无限期等待文件锁
 	timeoutSec := ls.timeout
 	if timeoutSec <= 0 {
-		timeoutSec = 5 // 默认 5 秒超时
+		timeoutSec = 5
 	}
 	db, err := bbolt.Open(ls.dbPath, 0600, &bbolt.Options{Timeout: time.Duration(timeoutSec) * time.Second})
 	if err != nil {
@@ -94,7 +92,6 @@ func (ls *LocalStorage) Init() error {
 	}
 	ls.db = db
 
-	// 加载加密密钥（如果存在）
 	key, err := crypto.LoadKey()
 	if err != nil {
 		return fmt.Errorf("加载密钥失败: %w", err)
@@ -141,7 +138,6 @@ func (ls *LocalStorage) GetAllResources() (map[models.ValJsonKey]models.ValJson,
 				return fmt.Errorf("解析value失败: %w", err)
 			}
 
-			// 如果启用了加密且 val 是加密格式，则解密
 			if ls.encrypted && crypto.IsEncrypted(val.Val) {
 				decrypted, err := crypto.Decrypt(ls.encryptionKey, val.Val)
 				if err != nil {
@@ -162,7 +158,6 @@ func (ls *LocalStorage) GetAllResources() (map[models.ValJsonKey]models.ValJson,
 		return nil, err
 	}
 
-	// 按 CreatedAt 倒序排序（最新的在前）
 	sort.Slice(resourceList, func(i, j int) bool {
 		return resourceList[i].val.CreatedAt > resourceList[j].val.CreatedAt
 	})
@@ -186,32 +181,27 @@ func (ls *LocalStorage) SaveResource(key models.ValJsonKey, value models.ValJson
 			return fmt.Errorf("序列化key失败: %w", err)
 		}
 
-		// 检查资源是否已存在
 		existingVal := bucket.Get(keyBytes)
 		now := time.Now().Unix()
 
 		var saveValue models.ValJson
 		if existingVal != nil {
-			// 更新资源：保持 CreatedAt 不变，更新 UpdatedAt
 			var existing models.ValJson
 			if err := json.Unmarshal(existingVal, &existing); err == nil {
 				saveValue = value
 				saveValue.CreatedAt = existing.CreatedAt
 				saveValue.UpdatedAt = now
 			} else {
-				// 解析失败，按新资源处理
 				saveValue = value
 				saveValue.CreatedAt = now
 				saveValue.UpdatedAt = now
 			}
 		} else {
-			// 新建资源：CreatedAt = UpdatedAt = now
 			saveValue = value
 			saveValue.CreatedAt = now
 			saveValue.UpdatedAt = now
 		}
 
-		// 如果启用了加密，加密 val 字段
 		if ls.encrypted {
 			encryptedVal, err := crypto.Encrypt(ls.encryptionKey, saveValue.Val)
 			if err != nil {
@@ -257,7 +247,6 @@ func (ls *LocalStorage) UpdateResource(key models.ValJsonKey, newValue models.Va
 			return fmt.Errorf("序列化key失败: %w", err)
 		}
 
-		// 如果启用了加密，加密 val 字段
 		saveValue := newValue
 		if ls.encrypted {
 			encryptedVal, err := crypto.Encrypt(ls.encryptionKey, newValue.Val)
@@ -276,18 +265,15 @@ func (ls *LocalStorage) UpdateResource(key models.ValJsonKey, newValue models.Va
 	})
 }
 
-// IsEncryptionEnabled 检查是否启用了加密
 func (ls *LocalStorage) IsEncryptionEnabled() bool {
 	return ls.encrypted
 }
 
-// EnableEncryption 启用加密并迁移现有数据
 func (ls *LocalStorage) EnableEncryption() error {
 	if ls.encrypted {
 		return errors.New("加密已启用")
 	}
 
-	// 加载或生成密钥
 	key, err := crypto.LoadKey()
 	if err != nil {
 		return fmt.Errorf("加载密钥失败: %w", err)
@@ -305,23 +291,19 @@ func (ls *LocalStorage) EnableEncryption() error {
 	ls.encryptionKey = key
 	ls.encrypted = true
 
-	// 迁移现有数据
 	return ls.migrateToEncrypted()
 }
 
-// DisableEncryption 禁用加密并解密现有数据
 func (ls *LocalStorage) DisableEncryption() error {
 	if !ls.encrypted {
 		return errors.New("加密未启用")
 	}
 
-	// 解密所有数据
 	err := ls.migrateToPlain()
 	if err != nil {
 		return fmt.Errorf("解密数据失败: %w", err)
 	}
 
-	// 删除密钥文件
 	if err := crypto.DeleteKey(); err != nil {
 		return fmt.Errorf("删除密钥失败: %w", err)
 	}
@@ -331,7 +313,6 @@ func (ls *LocalStorage) DisableEncryption() error {
 	return nil
 }
 
-// migrateToEncrypted 将所有未加密的数据迁移为加密格式
 func (ls *LocalStorage) migrateToEncrypted() error {
 	resources := make(map[models.ValJsonKey]models.ValJson)
 
@@ -352,7 +333,6 @@ func (ls *LocalStorage) migrateToEncrypted() error {
 				return err
 			}
 
-			// 只处理未加密的数据
 			if !crypto.IsEncrypted(val.Val) {
 				resources[key] = val
 			}
@@ -365,10 +345,9 @@ func (ls *LocalStorage) migrateToEncrypted() error {
 	}
 
 	if len(resources) == 0 {
-		return nil // 没有需要迁移的数据
+		return nil
 	}
 
-	// 加密并保存
 	for key, value := range resources {
 		if err := ls.SaveResource(key, value); err != nil {
 			return fmt.Errorf("加密资源 [%s] 失败: %w", key.Key, err)
@@ -378,7 +357,6 @@ func (ls *LocalStorage) migrateToEncrypted() error {
 	return nil
 }
 
-// migrateToPlain 将所有加密的数据解密
 func (ls *LocalStorage) migrateToPlain() error {
 	resources := make(map[models.ValJsonKey]models.ValJson)
 
@@ -399,7 +377,6 @@ func (ls *LocalStorage) migrateToPlain() error {
 				return err
 			}
 
-			// 只处理加密的数据
 			if crypto.IsEncrypted(val.Val) {
 				resources[key] = val
 			}
@@ -412,15 +389,13 @@ func (ls *LocalStorage) migrateToPlain() error {
 	}
 
 	if len(resources) == 0 {
-		return nil // 没有需要迁移的数据
+		return nil
 	}
 
-	// 临时禁用加密来保存明文数据
 	oldKey := ls.encryptionKey
 	ls.encryptionKey = nil
 	ls.encrypted = false
 
-	// 解密并保存
 	for key, value := range resources {
 		decryptedVal, err := crypto.Decrypt(oldKey, value.Val)
 		if err != nil {
@@ -533,7 +508,6 @@ func (cs *CloudStorage) GetAllResources() (map[models.ValJsonKey]models.ValJson,
 		return nil, fmt.Errorf("解析资源列表失败: %w", err)
 	}
 
-	// 按 CreatedAt 倒序排序
 	sort.Slice(dtos, func(i, j int) bool {
 		return dtos[i].CreatedAt > dtos[j].CreatedAt
 	})
@@ -646,9 +620,7 @@ func GetDBPath(confFile string, storageType string) (string, error) {
 
 	var baseDir string
 
-	// 如果配置中已经有明确的路径
 	if ttlConf.DbPath != "" {
-		// 根据存储类型调整文件扩展名
 		ext := filepath.Ext(ttlConf.DbPath)
 		basePath := ttlConf.DbPath[:len(ttlConf.DbPath)-len(ext)]
 
@@ -662,7 +634,6 @@ func GetDBPath(confFile string, storageType string) (string, error) {
 		}
 	}
 
-	// 否则根据存储类型生成默认文件名
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("获取用户目录失败: %w", err)
@@ -1146,7 +1117,6 @@ func (ss *SyncStorage) DeleteLogRecord(id int64) error {
 	return ss.cloudStorage.DeleteLogRecord(id)
 }
 
-// Chat history methods for LocalStorage
 func (ls *LocalStorage) SaveChatMessage(sessionID string, message models.ChatMessage) error {
 	return ls.db.Update(func(tx *bbolt.Tx) error {
 		bucket := tx.Bucket([]byte("chats"))
@@ -1267,7 +1237,6 @@ func (ls *LocalStorage) UpdateSessionMeta(sessionID string, lastActive int64) er
 	})
 }
 
-// Chat history methods for CloudStorage (stub implementations)
 func (cs *CloudStorage) SaveChatMessage(_ string, _ models.ChatMessage) error {
 	return nil
 }
@@ -1288,7 +1257,6 @@ func (cs *CloudStorage) UpdateSessionMeta(_ string, _ int64) error {
 	return nil
 }
 
-// Chat history methods for SyncStorage
 func (ss *SyncStorage) SaveChatMessage(sessionID string, message models.ChatMessage) error {
 	if err := ss.localStorage.SaveChatMessage(sessionID, message); err != nil {
 		return err

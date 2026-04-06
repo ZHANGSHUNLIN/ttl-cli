@@ -150,8 +150,6 @@ func TestDiff_SameData_InSync(t *testing.T) {
 	}
 }
 
-// ==================== Pull/Push 测试使用 mock storage ====================
-
 type mockStorage struct {
 	resources map[models.ValJsonKey]models.ValJson
 }
@@ -226,9 +224,8 @@ func TestPull_Success(t *testing.T) {
 		t.Fatalf("Pull 失败: %v", err)
 	}
 
-	// 验证本地数据与远程一致
 	finalLocal, _ := localStorage.GetAllResources()
-	if len(finalLocal) != 2 { // remote-only + shared
+	if len(finalLocal) != 2 {
 		t.Errorf("pull 后期望 2 个资源，实际: %d", len(finalLocal))
 	}
 
@@ -256,9 +253,8 @@ func TestPush_Success(t *testing.T) {
 		t.Fatalf("Push 失败: %v", err)
 	}
 
-	// 验证远程数据与本地一致
 	finalRemote, _ := remoteStorage.GetAllResources()
-	if len(finalRemote) != 2 { // local-only + shared
+	if len(finalRemote) != 2 {
 		t.Errorf("push 后期望 2 个资源，实际: %d", len(finalRemote))
 	}
 
@@ -281,7 +277,6 @@ func TestDryRun(t *testing.T) {
 	remoteRes, _ := remoteStorage.GetAllResources()
 	diff := ComputeDiff(localRes, remoteRes)
 
-	// dry-run pull 不应修改任何数据
 	_ = ExecutePull(diff, localStorage, remoteStorage, true)
 
 	finalLocal, _ := localStorage.GetAllResources()

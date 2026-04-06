@@ -19,14 +19,12 @@ var EncryptCmd = &cobra.Command{
 		migrate, _ := cmd.Flags().GetBool("migrate")
 		force, _ := cmd.Flags().GetBool("force")
 
-		// 检查是否已启用加密
 		if ls, ok := db.Stor.(*db.LocalStorage); ok && ls.IsEncryptionEnabled() {
 			Println(i18n.T("command.encrypt.enabled"))
 			return nil
 		}
 
 		if !migrate && !force {
-			// 检查是否有现有数据
 			resources, err := db.GetAllResources()
 			if err == nil && len(resources) > 0 {
 				Println(i18n.T("command.encrypt.migrate_prompt"))
@@ -40,7 +38,6 @@ var EncryptCmd = &cobra.Command{
 			}
 		}
 
-		// 如果指定了 --migrate 或检测到有数据，使用 LocalStorage 的 EnableEncryption
 		if ls, ok := db.Stor.(*db.LocalStorage); ok {
 			if migrate || force {
 				if err := ls.EnableEncryption(); err != nil {
@@ -49,7 +46,6 @@ var EncryptCmd = &cobra.Command{
 				Println(i18n.T("command.encrypt.success"))
 				Printf(i18n.T("command.encrypt.backup_prompt")+"\n", crypto.GetKeyFilePath())
 			} else {
-				// 只生成密钥文件，不迁移数据
 				if err := crypto.InitEncryption(true); err != nil {
 					return fmt.Errorf("初始化加密失败: %w", err)
 				}
@@ -149,14 +145,11 @@ var keyVerifyCmd = &cobra.Command{
 }
 
 func init() {
-	// encrypt 命令的 flags
 	EncryptCmd.Flags().BoolP("migrate", "m", false, i18n.T("command.encrypt.flag_migrate"))
 	EncryptCmd.Flags().BoolP("force", "f", false, i18n.T("command.encrypt.flag_force"))
 
-	// decrypt 命令的 flags
 	DecryptCmd.Flags().BoolP("keep-key", "", false, i18n.T("command.decrypt.flag_keep_key"))
 
-	// key 子命令
 	KeyCmd.AddCommand(keyExportCmd)
 	KeyCmd.AddCommand(keyImportCmd)
 	KeyCmd.AddCommand(keyVerifyCmd)

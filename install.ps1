@@ -1,6 +1,6 @@
 param(
     [string]$Repo = "ZHANGSHUNLIN/TTL-CLI",
-    [string]$DownloadUrl = ""
+    [string]$DownloadUrl = $env:TTL_DOWNLOAD_URL
 )
 
 $ErrorActionPreference = "Stop"

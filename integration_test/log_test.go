@@ -12,14 +12,12 @@ import (
 	"ttl-cli/models"
 )
 
-// TestLogLifecycle 测试日志的完整生命周期：写入 → 查询 → 删除
 func TestLogLifecycle(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
 	now := time.Now()
 
-	// ── 1. 写入两条日志 ──────────────────────────────────────────
 	record1 := models.LogRecord{
 		ID:        now.UnixNano(),
 		Content:   "完成用户模块重构",
@@ -31,7 +29,6 @@ func TestLogLifecycle(t *testing.T) {
 		t.Fatalf("SaveLogRecord(1) 失败: %v", err)
 	}
 
-	// 稍等一下确保 ID 不同
 	time.Sleep(time.Millisecond)
 	now2 := time.Now()
 	record2 := models.LogRecord{
@@ -45,7 +42,6 @@ func TestLogLifecycle(t *testing.T) {
 		t.Fatalf("SaveLogRecord(2) 失败: %v", err)
 	}
 
-	// ── 2. 查询今天的日志 ──────────────────────────────────────────
 	today := now.Format("2006-01-02")
 	records, err := db.GetLogRecords(today, today)
 	if err != nil {
@@ -54,12 +50,10 @@ func TestLogLifecycle(t *testing.T) {
 	if len(records) != 2 {
 		t.Fatalf("日志数量 = %d, want 2", len(records))
 	}
-	// 最新在前
 	if records[0].ID < records[1].ID {
 		t.Error("日志未按 ID 倒序排列")
 	}
 
-	// ── 3. 删除一条日志 ──────────────────────────────────────────
 	if err := db.DeleteLogRecord(record1.ID); err != nil {
 		t.Fatalf("DeleteLogRecord() 失败: %v", err)
 	}
@@ -76,7 +70,6 @@ func TestLogLifecycle(t *testing.T) {
 	}
 }
 
-// TestLogWithTags 验证标签写入和存储正确性
 func TestLogWithTags(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -112,12 +105,10 @@ func TestLogWithTags(t *testing.T) {
 	}
 }
 
-// TestLogDateRangeFilter 验证日期范围过滤
 func TestLogDateRangeFilter(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
-	// 写入三天的日志（通过手动指定 Date 模拟）
 	dates := []string{"2026-04-01", "2026-04-02", "2026-04-03"}
 	for i, date := range dates {
 		record := models.LogRecord{
@@ -132,7 +123,6 @@ func TestLogDateRangeFilter(t *testing.T) {
 		}
 	}
 
-	// 查询全部（空范围）
 	all, err := db.GetLogRecords("", "")
 	if err != nil {
 		t.Fatalf("GetLogRecords('','') 失败: %v", err)
@@ -141,7 +131,6 @@ func TestLogDateRangeFilter(t *testing.T) {
 		t.Errorf("全量日志数量 = %d, want 3", len(all))
 	}
 
-	// 查询单日
 	day, err := db.GetLogRecords("2026-04-02", "2026-04-02")
 	if err != nil {
 		t.Fatalf("GetLogRecords(单日) 失败: %v", err)
@@ -153,7 +142,6 @@ func TestLogDateRangeFilter(t *testing.T) {
 		t.Errorf("单日日志日期 = %q, want 2026-04-02", day[0].Date)
 	}
 
-	// 查询范围 04-01 ~ 04-02
 	rangeRecords, err := db.GetLogRecords("2026-04-01", "2026-04-02")
 	if err != nil {
 		t.Fatalf("GetLogRecords(范围) 失败: %v", err)
@@ -162,7 +150,6 @@ func TestLogDateRangeFilter(t *testing.T) {
 		t.Errorf("范围日志数量 = %d, want 2", len(rangeRecords))
 	}
 
-	// 查询不存在的日期范围
 	empty, err := db.GetLogRecords("2026-05-01", "2026-05-31")
 	if err != nil {
 		t.Fatalf("GetLogRecords(空范围) 失败: %v", err)
@@ -172,7 +159,6 @@ func TestLogDateRangeFilter(t *testing.T) {
 	}
 }
 
-// TestLogDeleteNotFound 验证删除不存在的日志返回错误
 func TestLogDeleteNotFound(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -186,7 +172,6 @@ func TestLogDeleteNotFound(t *testing.T) {
 	}
 }
 
-// TestLogExportCSV 验证日志 CSV 导出格式
 func TestLogExportCSV(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -219,19 +204,16 @@ func TestLogExportCSV(t *testing.T) {
 		t.Errorf("导出记录数 = %d, want 1", count)
 	}
 
-	// 解析 CSV 验证内容
 	r := csv.NewReader(&buf)
 	rows, err := r.ReadAll()
 	if err != nil {
 		t.Fatalf("CSV 解析失败: %v", err)
 	}
 
-	// header + 1 row
 	if len(rows) != 2 {
 		t.Fatalf("CSV 行数 = %d, want 2", len(rows))
 	}
 
-	// 验证 header
 	expectedHeader := []string{"id", "content", "tags", "created_at", "date"}
 	for i, h := range expectedHeader {
 		if rows[0][i] != h {
@@ -239,7 +221,6 @@ func TestLogExportCSV(t *testing.T) {
 		}
 	}
 
-	// 验证数据行
 	row := rows[1]
 	if row[0] != "1234567890" {
 		t.Errorf("id = %q, want 1234567890", row[0])

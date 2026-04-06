@@ -1,11 +1,3 @@
-// Package integration_test 包含端到端集成测试。
-//
-// 每个测试用例通过 setupTempStorage 创建独立的临时目录和配置文件，
-// 测试结束后自动清理，不影响真实数据（~/.ttl/）。
-//
-// 运行方式：
-//
-//	go test ./integration_test/...
 package integration_test
 
 import (
@@ -19,7 +11,6 @@ import (
 	"ttl-cli/util"
 )
 
-// setupTempStorage 创建临时目录和配置文件，将全局存储指向临时数据库，返回清理函数。
 func setupTempStorage(t *testing.T) func() {
 	t.Helper()
 
@@ -28,7 +19,6 @@ func setupTempStorage(t *testing.T) func() {
 		t.Fatalf("创建临时目录失败: %v", err)
 	}
 
-	// 写入临时配置文件，db_path 指向临时目录内的数据库文件
 	dbPath := filepath.Join(tmpDir, "test.db")
 	confPath := filepath.Join(tmpDir, "test.ini")
 	confContent := fmt.Sprintf("db_path = %s\n", dbPath)
@@ -37,7 +27,6 @@ func setupTempStorage(t *testing.T) func() {
 		t.Fatalf("写入临时配置文件失败: %v", err)
 	}
 
-	// 通过 --conf 同等路径初始化存储
 	if err := db.InitDB("local", "", "", 0, confPath); err != nil {
 		_ = os.RemoveAll(tmpDir)
 		t.Fatalf("初始化临时存储失败: %v", err)
@@ -49,7 +38,6 @@ func setupTempStorage(t *testing.T) func() {
 	}
 }
 
-// TestResourceLifecycle 测试资源的完整生命周期：增 → 查 → 改 → 删
 func TestResourceLifecycle(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -57,12 +45,10 @@ func TestResourceLifecycle(t *testing.T) {
 	key := models.ValJsonKey{Key: "github", Type: models.ORIGIN}
 	value := models.ValJson{Val: "https://github.com", Tag: []string{}}
 
-	// ── 1. 新增资源 ──────────────────────────────────────────────
 	if err := db.SaveResource(key, value); err != nil {
 		t.Fatalf("SaveResource() 失败: %v", err)
 	}
 
-	// ── 2. 查询资源 ──────────────────────────────────────────────
 	resources, err := db.GetAllResources()
 	if err != nil {
 		t.Fatalf("GetAllResources() 失败: %v", err)
@@ -75,7 +61,6 @@ func TestResourceLifecycle(t *testing.T) {
 		t.Errorf("资源值不符: got %q, want %q", saved.Val, value.Val)
 	}
 
-	// ── 3. 更新资源 ──────────────────────────────────────────────
 	updated := models.ValJson{Val: "https://github.com/new", Tag: []string{"dev"}}
 	if err := db.UpdateResource(key, updated); err != nil {
 		t.Fatalf("UpdateResource() 失败: %v", err)
@@ -89,7 +74,6 @@ func TestResourceLifecycle(t *testing.T) {
 		t.Errorf("更新后值不符: got %q, want %q", resources[key].Val, updated.Val)
 	}
 
-	// ── 4. 删除资源 ──────────────────────────────────────────────
 	if err := db.DeleteResource(key); err != nil {
 		t.Fatalf("DeleteResource() 失败: %v", err)
 	}
@@ -103,7 +87,6 @@ func TestResourceLifecycle(t *testing.T) {
 	}
 }
 
-// TestAuditLifecycle 测试审计记录的写入、统计、删除流程
 func TestAuditLifecycle(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -145,7 +128,6 @@ func TestAuditLifecycle(t *testing.T) {
 	}
 }
 
-// TestHistoryLifecycle 测试历史记录的写入、查询、删除流程
 func TestHistoryLifecycle(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -183,7 +165,6 @@ func TestHistoryLifecycle(t *testing.T) {
 	}
 }
 
-// TestStorageIsolation 验证每个测试用例使用独立的临时存储，互不干扰
 func TestStorageIsolation(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -197,24 +178,20 @@ func TestStorageIsolation(t *testing.T) {
 	}
 }
 
-// TestUpdatePreservesTags 验证 update 命令不会清除已有标签（bug fix 回归测试）
 func TestUpdatePreservesTags(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
 	key := models.ValJsonKey{Key: "mykey", Type: models.ORIGIN}
 
-	// 1. 新增资源
 	if err := db.SaveResource(key, models.ValJson{Val: "v1", Tag: []string{}}); err != nil {
 		t.Fatalf("SaveResource() 失败: %v", err)
 	}
 
-	// 2. 打上标签
 	if err := db.UpdateResource(key, models.ValJson{Val: "v1", Tag: []string{"work", "important"}}); err != nil {
 		t.Fatalf("UpdateResource(添加 tag) 失败: %v", err)
 	}
 
-	// 3. 模拟 UpdateCmd 修复后的行为：先读取旧资源，保留 Tag，只更新 Val
 	resources, err := db.GetAllResources()
 	if err != nil {
 		t.Fatalf("GetAllResources() 失败: %v", err)
@@ -225,7 +202,6 @@ func TestUpdatePreservesTags(t *testing.T) {
 		t.Fatalf("UpdateResource(更新 val) 失败: %v", err)
 	}
 
-	// 4. 验证 Val 已更新，Tag 未丢失
 	resources, err = db.GetAllResources()
 	if err != nil {
 		t.Fatalf("更新后 GetAllResources() 失败: %v", err)
@@ -247,7 +223,6 @@ func TestUpdatePreservesTags(t *testing.T) {
 	}
 }
 
-// TestAddWithSingleTag 验证添加资源时可以指定单个标签
 func TestAddWithSingleTag(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -274,7 +249,6 @@ func TestAddWithSingleTag(t *testing.T) {
 	}
 }
 
-// TestAddWithMultipleTags 验证添加资源时可以指定多个标签
 func TestAddWithMultipleTags(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
@@ -309,15 +283,12 @@ func TestAddWithMultipleTags(t *testing.T) {
 	}
 }
 
-// TestAddWithDuplicateTags 验证添加资源时重复标签会被自动去重
 func TestAddWithDuplicateTags(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()
 
 	key := models.ValJsonKey{Key: "mykey", Type: models.ORIGIN}
-	// 包含重复的标签
 	inputTags := []string{"ops", "dev", "ops", "ci", "dev"}
-	// AddCmd 实际行为会调用 util.RemoveDuplicates 去重
 	dedupTags := util.RemoveDuplicates(inputTags)
 
 	if err := db.SaveResource(key, models.ValJson{Val: "some value", Tag: dedupTags}); err != nil {
@@ -333,7 +304,6 @@ func TestAddWithDuplicateTags(t *testing.T) {
 		t.Fatal("保存后未能查到资源")
 	}
 
-	// 验证没有重复标签
 	tagSet := make(map[string]bool)
 	for _, tag := range result.Tag {
 		if tagSet[tag] {
@@ -341,13 +311,11 @@ func TestAddWithDuplicateTags(t *testing.T) {
 		}
 		tagSet[tag] = true
 	}
-	// 期望去重后有3个标签
 	if len(result.Tag) != 3 {
 		t.Errorf("Tag 数量 = %d, want 3 (重复标签未被去重)", len(result.Tag))
 	}
 }
 
-// TestAddWithEmptyTags 验证添加资源时不指定标签（向后兼容）
 func TestAddWithEmptyTags(t *testing.T) {
 	cleanup := setupTempStorage(t)
 	defer cleanup()

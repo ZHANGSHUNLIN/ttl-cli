@@ -9,7 +9,6 @@ import (
 	"ttl-cli/models"
 )
 
-// newTempInitDB 在临时目录初始化 local 存储，返回清理函数。
 func newTempInitDB(t *testing.T) func() {
 	t.Helper()
 	tmpDir, err := os.MkdirTemp("", "stor-test-*")
@@ -32,7 +31,6 @@ func newTempInitDB(t *testing.T) func() {
 	}
 }
 
-// TestInitDB 测试初始化数据库
 func TestInitDB(t *testing.T) {
 	t.Run("初始化本地存储", func(t *testing.T) {
 		cleanup := newTempInitDB(t)
@@ -57,14 +55,13 @@ func TestInitDB(t *testing.T) {
 	})
 }
 
-// TestCloseDB 测试关闭数据库
 func TestCloseDB(t *testing.T) {
 	t.Run("关闭本地存储", func(t *testing.T) {
 		cleanup := newTempInitDB(t)
 		defer func() {
-			_ = os.RemoveAll("") // tmpDir already cleaned by cleanup
+			_ = os.RemoveAll("")
 		}()
-		_ = cleanup // will close db
+		_ = cleanup
 		cleanup()
 	})
 
@@ -78,7 +75,6 @@ func TestCloseDB(t *testing.T) {
 	})
 }
 
-// TestGetAllResources 测试获取所有资源
 func TestGetAllResources(t *testing.T) {
 	t.Run("获取本地存储资源", func(t *testing.T) {
 		cleanup := newTempInitDB(t)
@@ -103,7 +99,6 @@ func TestGetAllResources(t *testing.T) {
 	})
 }
 
-// TestRecordAudit 测试记录审计
 func TestRecordAudit(t *testing.T) {
 	t.Run("本地存储记录审计", func(t *testing.T) {
 		cleanup := newTempInitDB(t)
@@ -123,7 +118,6 @@ func TestRecordAudit(t *testing.T) {
 	})
 }
 
-// TestGetAuditStats 测试获取审计统计
 func TestGetAuditStats(t *testing.T) {
 	cleanup := newTempInitDB(t)
 	defer cleanup()
@@ -139,9 +133,7 @@ func TestGetAuditStats(t *testing.T) {
 	}
 }
 
-// TestMigrateData 测试数据迁移（local→local，内容为空时应正常完成）
 func TestMigrateData(t *testing.T) {
-	// source 和 target 各用独立的临时目录，避免两个 LocalStorage 争同一 bbolt 文件锁
 	srcDir, err := os.MkdirTemp("", "migrate-src-*")
 	if err != nil {
 		t.Fatalf("创建 src 临时目录失败: %v", err)
@@ -170,26 +162,21 @@ func TestMigrateData(t *testing.T) {
 	}
 }
 
-// TestGetHistoryRecords 测试获取历史记录
 func TestGetHistoryRecords(t *testing.T) {
 	cleanup := newTempInitDB(t)
 	defer cleanup()
-	// 空库时索引0不存在，期望返回错误而非 panic
 	_, err := GetHistoryRecords(0)
 	if err == nil {
 		t.Log("索引0不存在时返回 nil error（空库），可接受")
 	}
 }
 
-// TestCleanupResourceHistory 测试清理资源历史
 func TestCleanupResourceHistory(t *testing.T) {
 	cleanup := newTempInitDB(t)
 	defer cleanup()
-	// 不存在的资源清理不应 panic
 	CleanupResourceHistory("test-resource", false)
 }
 
-// TestInterfaceMethods 测试接口方法
 func TestInterfaceMethods(t *testing.T) {
 	localStorage := NewLocalStorage()
 	cloudStorage := NewCloudStorage("https://api.example.com", "test-key", 30)
@@ -205,7 +192,6 @@ func TestInterfaceMethods(t *testing.T) {
 	}
 }
 
-// TestValJsonKeyComparison 测试键的比较
 func TestValJsonKeyComparison(t *testing.T) {
 	key1 := models.ValJsonKey{Key: "test", Type: models.ORIGIN}
 	key2 := models.ValJsonKey{Key: "test", Type: models.ORIGIN}

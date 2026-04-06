@@ -11,9 +11,7 @@ import (
 	"ttl-cli/models"
 )
 
-// TestGetDBPath 测试获取数据库路径
 func TestGetDBPath(t *testing.T) {
-	// 测试 sqlite 存储类型
 	path, err := GetDBPath("", "sqlite")
 	if err != nil {
 		t.Fatalf("GetDBPath() error = %v", err)
@@ -23,17 +21,14 @@ func TestGetDBPath(t *testing.T) {
 		t.Error("GetDBPath() returned empty path")
 	}
 
-	// 验证路径是否包含必要的目录结构
 	if !filepath.IsAbs(path) {
 		t.Errorf("GetDBPath() returned relative path: %s", path)
 	}
 
-	// 验证 sqlite 路径以 .db 结尾
 	if filepath.Ext(path) != ".db" {
 		t.Errorf("GetDBPath() for sqlite should end with .db, got: %s", path)
 	}
 
-	// 测试 local/bbolt 存储类型
 	bboltPath, err := GetDBPath("", "local")
 	if err != nil {
 		t.Fatalf("GetDBPath() for local error = %v", err)
@@ -44,7 +39,6 @@ func TestGetDBPath(t *testing.T) {
 	}
 }
 
-// TestLocalStorage_Init 测试本地存储初始化
 func TestLocalStorage_Init(t *testing.T) {
 	tmpDir, err := ioutil.TempDir("", "ttl-test-*")
 	if err != nil {
@@ -74,7 +68,6 @@ func TestLocalStorage_Init(t *testing.T) {
 	}
 }
 
-// TestLocalStorage_SaveGetResource 测试保存和获取资源
 func TestLocalStorage_SaveGetResource(t *testing.T) {
 	tmpDir, err := ioutil.TempDir("", "ttl-test-*")
 	if err != nil {
@@ -130,7 +123,6 @@ func TestLocalStorage_SaveGetResource(t *testing.T) {
 	}
 }
 
-// TestLocalStorage_UpdateResource 测试更新资源
 func TestLocalStorage_UpdateResource(t *testing.T) {
 	tmpDir, err := ioutil.TempDir("", "ttl-test-*")
 	if err != nil {
@@ -191,7 +183,6 @@ func TestLocalStorage_UpdateResource(t *testing.T) {
 	}
 }
 
-// TestLocalStorage_DeleteResource 测试删除资源
 func TestLocalStorage_DeleteResource(t *testing.T) {
 	tmpDir, err := ioutil.TempDir("", "ttl-test-*")
 	if err != nil {
@@ -252,7 +243,6 @@ func TestLocalStorage_DeleteResource(t *testing.T) {
 	}
 }
 
-// TestLocalStorage_AuditFunctions 测试审计功能
 func TestLocalStorage_AuditFunctions(t *testing.T) {
 	tmpDir, err := ioutil.TempDir("", "ttl-test-*")
 	if err != nil {
@@ -320,7 +310,6 @@ func TestLocalStorage_AuditFunctions(t *testing.T) {
 	}
 }
 
-// TestLocalStorage_HistoryFunctions 测试历史记录功能
 func TestLocalStorage_HistoryFunctions(t *testing.T) {
 	tmpDir, err := ioutil.TempDir("", "ttl-test-*")
 	if err != nil {
@@ -419,9 +408,7 @@ func TestLocalStorage_HistoryFunctions(t *testing.T) {
 	}
 }
 
-// TestJsonSerialization 测试JSON序列化
 func TestJsonSerialization(t *testing.T) {
-	// 测试 ValJsonKey 序列化
 	key := models.ValJsonKey{
 		Key:       "test-key",
 		Type:      models.ORIGIN,
@@ -465,20 +452,17 @@ func TestJsonSerialization(t *testing.T) {
 	}
 }
 
-// TestCloudStorage 测试云端存储（使用 mock server）
 func TestCloudStorage(t *testing.T) {
 	srv := mockAPIServer(t)
 	defer srv.Close()
 
 	storage := NewCloudStorage(srv.URL, "test-key", 30)
 
-	// 测试初始化
 	err := storage.Init()
 	if err != nil {
 		t.Errorf("CloudStorage.Init() error = %v", err)
 	}
 
-	// 测试获取资源（应该为空）
 	resources, err := storage.GetAllResources()
 	if err != nil {
 		t.Errorf("CloudStorage.GetAllResources() error = %v", err)
@@ -488,7 +472,6 @@ func TestCloudStorage(t *testing.T) {
 		t.Errorf("Expected empty resources from cloud storage")
 	}
 
-	// 测试审计函数（空操作，不应报错）
 	record := models.AuditRecord{
 		ResourceKey: "test",
 		Operation:   "get",
@@ -501,7 +484,6 @@ func TestCloudStorage(t *testing.T) {
 		t.Errorf("CloudStorage.SaveAuditRecord() error = %v", err)
 	}
 
-	// 测试关闭
 	err = storage.Close()
 	if err != nil {
 		t.Errorf("CloudStorage.Close() error = %v", err)

@@ -7,8 +7,6 @@ import (
 	"ttl-cli/models"
 )
 
-// ==================== UserStore ====================
-
 func TestUserStore_AddUser(t *testing.T) {
 	tmpDir := t.TempDir()
 	store := NewUserStore(filepath.Join(tmpDir, "users.json"))
@@ -153,11 +151,9 @@ func TestUserStore_ResetKey(t *testing.T) {
 		t.Error("new key should differ from old key")
 	}
 
-	// 旧 key 失效
 	if found := store.FindByAPIKey(oldKey); found != nil {
 		t.Error("old key should be invalid")
 	}
-	// 新 key 有效
 	if found := store.FindByAPIKey(newKey); found == nil {
 		t.Error("new key should be valid")
 	}
@@ -192,12 +188,10 @@ func TestUserStore_Persistence(t *testing.T) {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "users.json")
 
-	// 第一次：创建并保存
 	store1 := NewUserStore(filePath)
 	_ = store1.Load()
 	_, _ = store1.AddUser("alice", "Alice")
 
-	// 第二次：重新加载
 	store2 := NewUserStore(filePath)
 	if err := store2.Load(); err != nil {
 		t.Fatal(err)
@@ -207,8 +201,6 @@ func TestUserStore_Persistence(t *testing.T) {
 		t.Errorf("persistence failed: %+v", users)
 	}
 }
-
-// ==================== TenantStorageManager ====================
 
 func TestTenantManager_GetStorage(t *testing.T) {
 	tmpDir := t.TempDir()
@@ -222,7 +214,6 @@ func TestTenantManager_GetStorage(t *testing.T) {
 		t.Fatal("expected non-nil storage")
 	}
 
-	// 再次获取应复用同一实例
 	s2, err := mgr.GetStorage("alice")
 	if err != nil {
 		t.Fatal(err)
@@ -242,14 +233,12 @@ func TestTenantManager_Isolation(t *testing.T) {
 	sAlice, _ := mgr.GetStorage("alice")
 	sBob, _ := mgr.GetStorage("bob")
 
-	// Alice 写入数据
 	key := models.ValJsonKey{Key: "isolation-test", Type: models.ORIGIN}
 	val := models.ValJson{Val: "alice-data", Tag: []string{}}
 	if err := sAlice.SaveResource(key, val); err != nil {
 		t.Fatal(err)
 	}
 
-	// Bob 看不到 Alice 的数据
 	bobResources, err := sBob.GetAllResources()
 	if err != nil {
 		t.Fatal(err)
@@ -258,7 +247,6 @@ func TestTenantManager_Isolation(t *testing.T) {
 		t.Error("Bob should not see Alice's data")
 	}
 
-	// Alice 能看到自己的数据
 	aliceResources, err := sAlice.GetAllResources()
 	if err != nil {
 		t.Fatal(err)
@@ -278,7 +266,6 @@ func TestTenantManager_RemoveStorage(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// 目录应被删除
 	userDir := filepath.Join(tmpDir, "alice")
 	if _, err := os.Stat(userDir); !os.IsNotExist(err) {
 		t.Error("expected user dir to be removed")

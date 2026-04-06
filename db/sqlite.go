@@ -17,22 +17,20 @@ type SQLiteStorage struct {
 	db          *sql.DB
 	dbPath      string
 	confFile    string
-	journalMode string // WAL | DELETE | TRUNCATE | PERSIST
-	cacheSize   int    // 缓存大小
-	busyTimeout int    // 繁忙等待毫秒数
-	synchronous string // 同步模式
+	journalMode string
+	cacheSize   int
+	busyTimeout int
+	synchronous string
 }
 
 func NewSQLiteStorage() *SQLiteStorage {
-	// Windows 上使用 DELETE 模式以避免 WAL 模式的文件锁定问题
-	// WAL 模式在某些 Windows 环境下（特别是网络驱动器）可能不工作
 	journalMode := "WAL"
 	if runtime.GOOS == "windows" {
 		journalMode = "DELETE"
 	}
 	return &SQLiteStorage{
 		journalMode: journalMode,
-		cacheSize:   -64000, // 64MB
+		cacheSize:   -64000,
 		busyTimeout: 5000,
 		synchronous: "NORMAL",
 	}
@@ -196,7 +194,6 @@ func (s *SQLiteStorage) SaveResource(key models.ValJsonKey, value models.ValJson
 
 	now := time.Now().Unix()
 
-	// 检查资源是否已存在
 	var existingCreatedAt int64
 	err = s.db.QueryRow(
 		"SELECT created_at FROM resources WHERE key = ? AND type = ?",
@@ -204,7 +201,6 @@ func (s *SQLiteStorage) SaveResource(key models.ValJsonKey, value models.ValJson
 	).Scan(&existingCreatedAt)
 
 	if err == sql.ErrNoRows {
-		// 新建资源：created_at = updated_at = now
 		_, err = s.db.Exec(
 			`INSERT INTO resources (key, type, origin_key, value, tags, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 			key.Key, typ, key.OriginKey, value.Val, string(tagsJSON), now, now,
@@ -212,7 +208,6 @@ func (s *SQLiteStorage) SaveResource(key models.ValJsonKey, value models.ValJson
 	} else if err != nil {
 		return fmt.Errorf("查询资源失败: %w", err)
 	} else {
-		// 更新资源：保持 created_at 不变，更新 updated_at = now
 		_, err = s.db.Exec(
 			`UPDATE resources SET origin_key = ?, value = ?, tags = ?, updated_at = ? WHERE key = ? AND type = ?`,
 			key.OriginKey, value.Val, string(tagsJSON), now, key.Key, typ,
@@ -466,7 +461,6 @@ func (s *SQLiteStorage) DeleteLogRecord(id int64) error {
 	return nil
 }
 
-// Chat history methods for SQLiteStorage
 func (s *SQLiteStorage) SaveChatMessage(sessionID string, message models.ChatMessage) error {
 	_, err := s.db.Exec(
 		`INSERT INTO chats (session_id, role, content, timestamp) VALUES (?, ?, ?, ?)`,

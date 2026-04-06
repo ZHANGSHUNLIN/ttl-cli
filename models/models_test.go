@@ -17,19 +17,16 @@ func TestValJsonKey_JsonSerialization(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			// 序列化
 			data, err := json.Marshal(tc.key)
 			if err != nil {
 				t.Fatalf("序列化失败: %v", err)
 			}
 
-			// 反序列化
 			var decoded ValJsonKey
 			if err := json.Unmarshal(data, &decoded); err != nil {
 				t.Fatalf("反序列化失败: %v", err)
 			}
 
-			// 验证
 			if decoded.Key != tc.key.Key {
 				t.Errorf("Key 不匹配: 期望 %s, 实际 %s", tc.key.Key, decoded.Key)
 			}
@@ -55,19 +52,16 @@ func TestValJson_JsonSerialization(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			// 序列化
 			data, err := json.Marshal(tc.value)
 			if err != nil {
 				t.Fatalf("序列化失败: %v", err)
 			}
 
-			// 反序列化
 			var decoded ValJson
 			if err := json.Unmarshal(data, &decoded); err != nil {
 				t.Fatalf("反序列化失败: %v", err)
 			}
 
-			// 验证
 			if decoded.Val != tc.value.Val {
 				t.Errorf("Val 不匹配: 期望 %s, 实际 %s", tc.value.Val, decoded.Val)
 			}

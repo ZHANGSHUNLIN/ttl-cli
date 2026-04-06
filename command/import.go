@@ -29,10 +29,8 @@ var ImportCmd = &cobra.Command{
 		var err error
 
 		if len(args) == 0 || args[0] == "-" {
-			// 从 stdin 读取
 			input = os.Stdin
 		} else {
-			// 从文件读取
 			input, err = os.Open(args[0])
 			if err != nil {
 				return fmt.Errorf("无法打开文件 %s: %w", args[0], err)
@@ -40,7 +38,6 @@ var ImportCmd = &cobra.Command{
 			defer input.Close()
 		}
 
-		// 自动检测格式
 		if importFormat == "auto" && len(args) == 1 {
 			if strings.HasSuffix(args[0], ".json") {
 				importFormat = "json"
@@ -49,10 +46,9 @@ var ImportCmd = &cobra.Command{
 			}
 		}
 		if importFormat == "auto" {
-			importFormat = "csv" // 默认 CSV
+			importFormat = "csv"
 		}
 
-		// 执行导入
 		var added, skipped, failed int
 		switch importFormat {
 		case "csv":
@@ -86,7 +82,6 @@ func importCSV(input *os.File, importType string, mergeMode bool) (added, skippe
 		return 0, 0, 0, fmt.Errorf("CSV 文件为空或只有表头")
 	}
 
-	// 第一行是表头
 	headers := records[0]
 
 	switch importType {
@@ -104,7 +99,6 @@ func importCSV(input *os.File, importType string, mergeMode bool) (added, skippe
 }
 
 func importResourcesFromCSV(headers []string, records [][]string, mergeMode bool) (added, skipped, failed int, err error) {
-	// 解析表头索引
 	keyIdx := -1
 	valueIdx := -1
 	tagsIdx := -1
@@ -124,7 +118,6 @@ func importResourcesFromCSV(headers []string, records [][]string, mergeMode bool
 		return 0, 0, 0, fmt.Errorf("CSV 缺少必要的列 (key, value)")
 	}
 
-	// 获取现有资源用于 merge 模式
 	existingResources := make(map[string]bool)
 	if mergeMode {
 		allResources, e := db.GetAllResources()
@@ -151,13 +144,11 @@ func importResourcesFromCSV(headers []string, records [][]string, mergeMode bool
 			continue
 		}
 
-		// merge 模式检查
 		if mergeMode && existingResources[key] {
 			skipped++
 			continue
 		}
 
-		// 解析标签
 		var tags []string
 		if tagsIdx >= 0 && tagsIdx < len(row) {
 			tagsStr := strings.TrimSpace(row[tagsIdx])
@@ -166,7 +157,6 @@ func importResourcesFromCSV(headers []string, records [][]string, mergeMode bool
 			}
 		}
 
-		// 保存资源
 		vjk := models.ValJsonKey{Key: key, Type: models.ORIGIN}
 		if err := db.SaveResource(vjk, models.ValJson{Val: value, Tag: tags}); err != nil {
 			failed++
@@ -259,7 +249,6 @@ func importLogFromCSV(headers []string, records [][]string, mergeMode bool) (add
 			continue
 		}
 
-		// 解析标签
 		var tags []string
 		if len(row) > 2 {
 			tagsStr := strings.TrimSpace(row[2])
@@ -298,7 +287,6 @@ func importJSON(input *os.File, importType string, mergeMode bool) (added, skipp
 		return 0, 0, 0, fmt.Errorf("解析 JSON 失败: %w", err)
 	}
 
-	// 获取现有资源用于 merge 模式
 	existingResources := make(map[string]bool)
 	if mergeMode && importType == "resources" {
 		allResources, e := db.GetAllResources()
@@ -330,7 +318,6 @@ func importJSON(input *os.File, importType string, mergeMode bool) (added, skipp
 				continue
 			}
 
-			// merge 模式检查
 			if mergeMode && existingResources[key] {
 				skipped++
 				continue

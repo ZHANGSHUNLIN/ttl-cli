@@ -58,7 +58,6 @@ var aiContextStatusCmd = &cobra.Command{
 
 		Println("消息统计: 共", len(messages), "条(user:", userCount, ", assistant:", assistantCount, ")")
 
-		// 获取会话元数据
 		meta, err := db.GetSessionMeta(defaultSessionID)
 		if err == nil {
 			Println("最后活跃:", time.Unix(meta.LastActive, 0).Format("2006-01-02 15:04:05"))
@@ -99,7 +98,6 @@ var aiContextNewCmd = &cobra.Command{
 	Short: "Create a new AI context session",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// 生成随机 session ID
 		sessionID := fmt.Sprintf("sess_%x", time.Now().UnixNano())
 
 		Println("已创建新会话:", sessionID)
