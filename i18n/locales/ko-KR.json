@@ -1,0 +1,461 @@
+{
+  "language": "한국어",
+  "version": "1.0.0",
+  "command": {
+    "add": {
+      "short": "리소스 추가",
+      "long": "이름과 내용으로 리소스를 추가합니다. 리소스 이름에 공백이 포함된 경우 따옴표를 사용하세요. 이스케이프 문자 지원: \\n \\t \\r \\\\ \\\" \\'.",
+      "success": "추가되었습니다!",
+      "duplicate": "키가 이미 존재합니다: %s",
+      "error_fetch": "리소스 가져오기 실패: %w",
+      "error_save": "리소스 저장 실패: %w",
+      "audit_error": "감사 기록 실패: %v",
+      "flag_tag": "태그(여러 번 지정 가능, 예: -t ops -t dev)"
+    },
+    "init": {
+      "short": "셸 자동 완성 초기화",
+      "long": "ttl용 셸 자동 완성을 초기화합니다. 셸(bash/zsh/fish)을 감지하고 자동으로 설정합니다.",
+      "detected_shell": "감지된 셸: %s",
+      "unsupported_shell": "이 셸은 자동 완성을 지원하지 않습니다.",
+      "manual_setup": "셸의 완성을 수동으로 구성하세요.",
+      "error_home_dir": "홈 디렉터리 가져오기 실패: %w",
+      "error_create_dir": "완성 디렉터리 생성 실패: %w",
+      "error_generate": "완성 스크립트 생성 실패: %w",
+      "error_setup_rc": "셸 구성 설정 실패: %w",
+      "script_created": "완성 스크립트 생성됨: %s",
+      "success": "초기화 완료!",
+      "script_path": "  스크립트: %s",
+      "rc_configured": "  구성됨: %s",
+      "reload_hint": "  변경 사항을 적용하려면 다음 명령을 실행하세요:",
+      "manual_source": "  셸 구성 파일에서 스크립트를 소스하세요",
+      "already_configured": "  셸 자동 완성이 이미 구성되어 있습니다."
+    },
+    "get": {
+      "short": "리소스 가져오기",
+      "long": "이름 또는 태그로 리소스를 가져와 표시합니다.",
+      "error_fetch": "리소스 가져오기 실패: %w",
+      "no_filter_notice": "[참고] 필터가 제공되지 않았습니다. 모든 리소스 키를 나열합니다. 도움말은 'ttl -h' 또는 'ttl --help'를 사용하세요.",
+      "resource_label": "리소스:",
+      "tags_label": "태그:",
+      "not_found": "리소스를 찾을 수 없습니다: %s",
+      "audit_error": "감사 기록 실패: %v",
+      "multiple_matches": "여러 리소스가 발견되었습니다. 번호를 입력하여 선택하세요:",
+      "tag_hint": "(태그: %s)",
+      "invalid_input": "잘못된 입력: %w",
+      "invalid_choice": "잘못된 선택"
+    },
+    "open": {
+      "short": "리소스 열기",
+      "long": "가능한 경우 리소스를 열고, 그렇지 않으면 오류 메시지를 표시합니다.",
+      "error_fetch": "리소스 가져오기 실패: %w",
+      "macos_detected": "현재 시스템은 macOS입니다",
+      "linux_not_supported": "현재 시스템은 Linux입니다 - 지원되지 않음",
+      "windows_detected": "현재 시스템은 Windows입니다. 여는 중:",
+      "system_not_supported": "현재 시스템은 %s입니다 - 지원되지 않음"
+    },
+    "update": {
+      "short": "리소스 내용 업데이트",
+      "long": "리소스의 내용을 업데이트합니다. 이스케이프 문자 지원: \\n \\t \\r \\\\ \\\" \\'.",
+      "error_fetch": "리소스 가져오기 실패: %w",
+      "not_found": "리소스를 찾을 수 없습니다: %s",
+      "audit_error": "감사 기록 실패: %v"
+    },
+    "delete": {
+      "short": "리소스 삭제",
+      "long": "리소스를 삭제합니다(정확히 일치).",
+      "error_fetch": "리소스 가져오기 실패: %w",
+      "not_found": "리소스를 찾을 수 없습니다: %s",
+      "error_delete": "리소스 삭제 실패: %w",
+      "success": "삭제되었습니다!"
+    },
+    "tag": {
+      "short": "태그 추가",
+      "long": "리소스에 하나 이상의 태그를 추가하여 보기와 관리를 쉽게 합니다.",
+      "error_fetch": "리소스 가져오기 실패: %w",
+      "not_found": "리소스를 찾을 수 없습니다",
+      "error_save": "리소스 저장 실패: %w",
+      "success": "태그가 추가되었습니다!"
+    },
+    "dtag": {
+      "short": "태그 삭제",
+      "long": "리소스에서 태그를 삭제합니다.",
+      "error_fetch": "리소스 가져오기 실패: %w",
+      "not_found": "리소스를 찾을 수 없습니다",
+      "error_save": "리소스 저장 실패: %w",
+      "success": "태그가 삭제되었습니다!"
+    },
+    "rename": {
+      "short": "리소스 이름 변경",
+      "long": "리소스의 이름을 변경합니다.",
+      "error_fetch": "리소스 가져오기 실패: %w",
+      "not_found": "리소스를 찾을 수 없습니다",
+      "error_delete_old": "이전 리소스 삭제 실패: %w",
+      "error_save_new": "새 리소스 저장 실패: %w",
+      "success": "이름이 변경되었습니다!"
+    },
+    "config": {
+      "short": "구성 표시",
+      "long": "데이터 파일 위치에 대한 정보를 표시합니다. AI 기능을 구성하려면 하위 명령 'config ai'를 사용하세요.",
+      "error_get_path": "구성 경로 가져오기 실패: %w",
+      "data_path_label": "데이터 파일 위치:",
+      "config_path_label": "구성 파일 위치:",
+      "ai_config_label": "AI 구성:"
+    },
+    "config_ai": {
+      "short": "AI 구성",
+      "long": "AI 매개변수(API 키, 모델 URL 등)를 대화형으로 구성합니다.",
+      "title": "=== AI 구성 ===",
+      "api_key_prompt": "API 키(필수): ",
+      "api_key_current": "API 키 [현재: %s]: ",
+      "api_key_empty": "API 키는 비워둘 수 없습니다",
+      "api_url_prompt": "API URL [%s]: ",
+      "model_prompt": "모델 이름 [%s]: ",
+      "timeout_prompt": "타임아웃(초) [%d]: ",
+      "error_save": "AI 구성 저장 실패: %w",
+      "success": "구성이 저장되었습니다!"
+    },
+    "version": {
+      "short": "버전 표시",
+      "long": "도구의 현재 버전을 표시합니다."
+    },
+    "audit": {
+      "short": "감사 통계 보기",
+      "long": "리소스에 대한 작업 통계를 봅니다.",
+      "error_fetch": "감사 통계 가져오기 실패: %w",
+      "title": "=== 감사 통계 ===",
+      "total_ops": "총 작업 수: %d",
+      "by_operation": "작업 유형별:",
+      "by_resource": "리소스별(상위 10개):"
+    },
+    "history": {
+      "short": "작업 기록 보기",
+      "long": "자세한 작업 기록을 봅니다. 페이지네이션을 지원합니다.\n선택적 limit 매개변수는 표시할 최근 레코드 수를 지정합니다(기본값 20).",
+      "invalid_limit": "잘못된 limit 매개변수: %s",
+      "error_fetch": "기록 가져오기 실패: %w",
+      "no_history": "기록이 없습니다",
+      "title": "=== 작업 기록 ===",
+      "showing": "%d개의 최근 레코드 표시 중(총 %d개)"
+    },
+    "log": {
+      "short": "작업 로그",
+      "long": "작업 로그를 기록하고 보고 관리합니다.",
+      "error_save": "로그 저장 실패: %w",
+      "success": "기록되었습니다! (%s)",
+      "error_query": "로그 쿼리 실패: %w",
+      "no_records": "로그 레코드가 없습니다",
+      "invalid_id": "잘못된 로그 ID: %s",
+      "delete_success": "삭제되었습니다!",
+      "flag_tag": "태그(여러 번 지정 가능)",
+      "flag_list": "로그 보기",
+      "flag_date": "특정 날짜 보기(YYYY-MM-DD)",
+      "flag_week": "이번 주 로그 보기",
+      "flag_month": "이번 달 로그 보기",
+      "flag_from": "범위 시작 날짜(YYYY-MM-DD)",
+      "flag_to": "범위 종료 날짜(YYYY-MM-DD)",
+      "flag_filter_tag": "태그로 필터링(보기 모드)",
+      "flag_delete": "지정된 ID의 로그 삭제"
+    },
+    "import": {
+      "short": "데이터 가져오기",
+      "long": "CSV 또는 JSON 파일에서 데이터베이스로 데이터를 가져옵니다.",
+      "success": "가져오기 완료: %d개 추가됨, %d개 건너뜀, %d개 실패",
+      "partial_failed": "일부 레코드 가져오기 실패",
+      "open_failed": "파일 열기 실패 %s: %w",
+      "unsupported_format": "지원되지 않는 형식: %s(지원: csv, json)",
+      "read_csv_failed": "CSV 읽기 실패: %w",
+      "csv_empty": "CSV 파일이 비어 있거나 헤더만 있습니다",
+      "unsupported_type": "지원되지 않는 가져오기 유형: %s",
+      "csv_missing_columns": "CSV에 필수 열이 없습니다(key, value)",
+      "get_existing_failed": "기존 리소스 가져오기 실패: %w",
+      "parse_json_failed": "JSON 구문 분석 실패: %w",
+      "invalid_id": "잘못된 로그 ID: %s",
+      "delete_failed": "로그 삭제 실패: %w"
+    },
+    "export": {
+      "short": "데이터를 CSV로 내보내기",
+      "long": "리소스, 감사 레코드 또는 작업 기록을 CSV로 내보냅니다.",
+      "error_create_file": "파일 생성 실패: %w",
+      "error_write_bom": "BOM 쓰기 실패: %w",
+      "error_fetch_resources": "리소스 가져오기 실패: %w",
+      "error_fetch_audit": "감사 레코드 가져오기 실패: %w",
+      "error_fetch_history": "기록 가져오기 실패: %w",
+      "error_fetch_log": "로그 레코드 가져오기 실패: %w",
+      "unsupported_type": "지원되지 않는 내보내기 유형: %s(지원: resources / audit / history / log)",
+      "error_write_csv": "CSV 쓰기 실패: %w",
+      "success": "내보내기 성공: %s(%d개 레코드)",
+      "flag_output": "출력 파일 경로(기본값: stdout)",
+      "flag_type": "내보내기 유형: resources / audit / history / log",
+      "flag_bom": "UTF-8 BOM 쓰기(Excel 한글 인코딩 문제 해결)"
+    },
+    "ai": {
+      "use": "ai <자연어 입력>",
+      "short": "자연어로 데이터 관리",
+      "long": "자연어로 AI 어시스턴트와 상호작용합니다. 하나의 명령으로 열 개의 작업을.",
+      "not_configured": "먼저 AI를 구성하세요: 'ttl config ai' 실행",
+      "thinking": "생각 중..."
+    },
+    "server": {
+      "short": "HTTP 백엔드 시작 또는 사용자 관리",
+      "long": "멀티 테넌트 HTTP 서비스(REST API + MCP HTTP 엔드포인트)를 시작하거나 사용자 하위 명령으로 사용자를 관리합니다.",
+      "user": {
+        "short": "사용자 관리",
+        "long": "멀티 테넌트 사용자를 관리합니다. 생성, 목록, 비활성화, 활성화, 키 재설정, 삭제 등이 포함됩니다."
+      },
+      "user_add": {
+        "short": "사용자 생성 및 API 키 발급",
+        "success": "사용자가 생성되었습니다!",
+        "warn_keep_key": "API 키를 안전하게 보관하세요. 다시 전체 표시되지 않습니다."
+      },
+      "user_list": {
+        "short": "모든 사용자 목록",
+        "no_users": "사용자가 없습니다"
+      },
+      "user_disable": {
+        "short": "사용자 비활성화",
+        "success": "사용자 %s가 비활성화되었습니다"
+      },
+      "user_enable": {
+        "short": "사용자 활성화",
+        "success": "사용자 %s가 활성화되었습니다"
+      },
+      "user_reset_key": {
+        "short": "사용자 API 키 재생성(이전 키는 즉시 만료)",
+        "success": "사용자 %s의 API 키가 재설정되었습니다",
+        "new_key": "  새 API 키: %s"
+      },
+      "user_delete": {
+        "short": "사용자 삭제(--confirm 필요)",
+        "need_confirm": "삭제 작업에는 --confirm이 필요합니다",
+        "warn_delete_data": "경고: 사용자 데이터 디렉터리 삭제 실패: %v",
+        "success": "사용자 %s가 삭제되었습니다"
+      }
+    },
+    "sync": {
+      "short": "로컬 및 원격 데이터 동기화",
+      "long": "로컬과 원격 데이터 간의 차이점을 비교하고 지정된 방향으로 동기화합니다.",
+      "need_cloud_url": "sync에는 --cloud-url 매개변수가 필요합니다",
+      "error_fetch_local": "로컬 리소스 가져오기 실패: %w",
+      "error_connect_remote": "원격 서비스 연결 실패: %w",
+      "error_fetch_remote": "원격 리소스 가져오기 실패: %w",
+      "dry_run_notice": "[dry-run] 차이점만 표시, 동기화 수행 안 함",
+      "choose_operation": "작업을 선택하세요:",
+      "option_pull": "  pull  - 원격을 소스로 모두 동기화",
+      "option_push": "  push  - 로컬을 소스로 모두 동기화",
+      "option_skip": "  skip  - 아무것도 하지 않음",
+      "skipped": "건너뜀",
+      "invalid_choice": "잘못된 선택: %s",
+      "invalid_direction": "잘못된 동기화 방향: %s(지원: pull, push, auto)"
+    },
+    "mcp": {
+      "short": "로컬 MCP 서버 시작(stdio 전송)",
+      "long": "MCP 서버를 시작하고 stdin/stdout을 통해 AI 클라이언트와 통신합니다.",
+      "added_successfully": "추가되었습니다",
+      "key_already_exists": "키가 이미 존재합니다: ",
+      "failed_to_save": "리소스 저장 실패",
+      "failed_to_get": "리소스 가져오기 실패",
+      "no_resources": "리소스가 없습니다",
+      "all_resources": "모든 리소스:\n",
+      "not_found": "리소스를 찾을 수 없습니다: ",
+      "resource_not_found": "리소스를 찾을 수 없습니다",
+      "failed_to_update": "리소스 업데이트 실패",
+      "failed_to_save_resource": "리소스 저장 실패",
+      "failed_to_get_resources": "리소스 가져오기 실패",
+      "at_least_one_tag_required": "하나 이상의 태그가 필요합니다",
+      "tag_added_successfully": "태그가 추가되었습니다",
+      "tag_deleted_successfully": "태그가 삭제되었습니다",
+      "rename_successfully": "이름이 변경되었습니다",
+      "not_found_resource": "리소스를 찾을 수 없습니다",
+      "failed_to_delete_old": "이전 리소스 삭제 실패",
+      "failed_to_save_new": "새 리소스 저장 실패",
+      "resource_label": "리소스: ",
+      "tags_label": "태그: ",
+      "deleted_successfully": "삭제되었습니다",
+      "content_required": "로그 내용이 필요합니다",
+      "failed_to_save_log": "로그 저장 실패",
+      "log_recorded": "로그가 기록되었습니다: %s%s (%s)",
+      "no_log_records": "기간 %s ~ %s 동안 로그 레코드가 없습니다",
+      "log_deleted_successfully": "로그가 삭제되었습니다",
+      "id_required": "로그 ID는 비워둘 수 없습니다",
+      "failed_to_delete_log": "로그 삭제 실패",
+      "unsupported_export_type": "지원되지 않는 내보내기 유형: %s(지원: resources, audit, history, log)",
+      "failed_to_get_audit": "감사 레코드 가져오기 실패",
+      "failed_to_get_history": "기록 레코드 가져오기 실패",
+      "failed_to_get_log": "로그 레코드 가져오기 실패",
+      "total_records": "총 %d개 레코드"
+    },
+    "encrypt": {
+      "short": "데이터 암호화 활성화",
+      "long": "저장된 데이터의 암호화를 활성화합니다. 기존 데이터가 있는 경우 --migrate를 사용하여 암호화하세요.",
+      "flag_migrate": "기존 데이터 암호화",
+      "flag_force": "프롬프트 없이 강제로 암호화 활성화",
+      "enabled": "암호화가 활성화되었습니다",
+      "migrate_prompt": "기존 데이터가 감지되었습니다. 암호화를 활성화하시겠습니까? [Y/n]",
+      "cancelled": "취소되었습니다",
+      "key_generated": "암호화 키가 생성되었습니다. 다음 시작 시 자동으로 활성화됩니다",
+      "success": "암호화가 활성화되었습니다!",
+      "backup_prompt": "키 파일을 백업하세요: %s"
+    },
+    "decrypt": {
+      "short": "데이터 암호화 비활성화",
+      "long": "암호화를 비활성화하고 저장된 모든 데이터를 복호화합니다.",
+      "flag_keep_key": "복호화 후 키 파일 유지",
+      "not_enabled": "암호화가 활성화되지 않았습니다",
+      "warning": "경고: 복호화 후 모든 데이터가 일반 텍스트로 저장됩니다",
+      "confirm_prompt": "계속하시겠습니까? [y/N]",
+      "data_decrypted": "데이터가 복호화되었습니다",
+      "key_kept": "키 파일이 유지되었습니다",
+      "success": "복호화 완료! 키 파일이 삭제되었습니다"
+    },
+    "key": {
+      "short": "암호화 키 관리",
+      "long": "암호화 키를 관리합니다(내보내기, 가져오기, 검증).",
+      "export_success": "키가 내보내기됨: %s",
+      "import_success": "키가 가져오기됨",
+      "verify_success": "키 파일이 유효합니다"
+    },
+    "migrate": {
+      "short": "데이터 마이그레이션 도구",
+      "long": "하나의 저장소에서 다른 저장소로 데이터를 마이그레이션합니다\n지원되는 방향: local->cloud, cloud->local, local->local",
+      "invalid_source": "소스 저장소 유형은 local 또는 cloud여야 합니다",
+      "invalid_target": "대상 저장소 유형은 local 또는 cloud여야 합니다",
+      "same_type": "소스와 대상 저장소 유형이 같을 수 없습니다",
+      "need_source_config": "소스 클라우드 저장소에는 --source-url 및 --source-key 매개변수가 필요합니다",
+      "flag_source_url": "소스 클라우드 저장소 API URL",
+      "flag_source_key": "소스 클라우드 저장소 API 키",
+      "flag_source_timeout": "소스 클라우드 저장소 타임아웃(초)"
+    }
+  },
+  "root": {
+    "short": "개인 데이터 관리 시스템",
+    "long": "리소스와 태그를 관리하기 위한 개인 데이터 관리 시스템.\n리소스 추가, 가져오기, 삭제, 태그 관리 등의 작업을 지원합니다.",
+    "flag_debug": "디버그 모드 활성화",
+    "flag_storage": "저장소 유형: local, cloud, sync",
+    "flag_cloud_url": "클라우드 저장소 API URL",
+    "flag_cloud_key": "클라우드 저장소 API 키",
+    "flag_cloud_timeout": "클라우드 저장소 타임아웃(초)",
+    "flag_conf": "구성 파일 경로 지정(기본값: ~/.ttl/ttl.ini)"
+  },
+  "error": {
+    "init_db": "데이터베이스 초기화 실패: %w",
+    "record_history": "명령 기록 기록 실패: %v",
+    "close_db": "데이터베이스 닫기 실패: %v",
+    "get_history": "명령 기록 가져오기 실패: %v",
+    "db": {
+      "create_dir": "디렉터리 생성 실패: %w",
+      "open_db": "데이터베이스 열기 실패: %w",
+      "bucket_not_exist": "리소스 버킷이 존재하지 않습니다",
+      "parse_key": "키 구문 분석 실패: %w",
+      "parse_value": "값 구문 분석 실패: %w",
+      "serialize_key": "키 직렬화 실패: %w",
+      "serialize_value": "값 직렬화 실패: %w",
+      "serialize_request": "요청 본문 직렬화 실패: %w",
+      "create_request": "요청 생성 실패: %w",
+      "request_failed": "요청 실패: %w",
+      "read_response": "응답 읽기 실패: %w",
+      "parse_response": "응답 구문 분석 실패: %w, 본문: %s",
+      "api_error": "API 오류: %s",
+      "parse_resources": "리소스 목록 구문 분석 실패: %w",
+      "serialize_audit": "감사 레코드 직렬화 실패: %w",
+      "parse_audit": "감사 레코드 구문 분석 실패: %w",
+      "serialize_history": "기록 레코드 직렬화 실패: %w",
+      "serialize_log": "로그 레코드 직렬화 실패: %w",
+      "parse_log": "로그 레코드 구문 분석 실패: %w",
+      "log_not_found": "로그 레코드를 찾을 수 없습니다"
+    },
+    "storage": {
+      "need_cloud_config": "클라우드 저장소에는 API URL과 키가 필요합니다",
+      "unsupported_type": "지원되지 않는 저장소 유형: %s",
+      "not_initialized": "저장소가 초기화되지 않았습니다",
+      "migrate": {
+        "title": "데이터 마이그레이션 시작: %s -> %s",
+        "need_source_config": "소스 클라우드 저장소에는 API URL과 키가 필요합니다",
+        "unsupported_source": "지원되지 않는 소스 저장소 유형: %s",
+        "init_source_failed": "소스 저장소 초기화 실패: %w",
+        "need_target_config": "대상 클라우드 저장소에는 API URL과 키가 필요합니다",
+        "unsupported_target": "지원되지 않는 대상 저장소 유형: %s",
+        "init_target_failed": "대상 저장소 초기화 실패: %w",
+        "reading_source": "소스 저장소에서 읽는 중...",
+        "read_failed": "소스 데이터 읽기 실패: %w",
+        "found_resources": "%d개의 리소스가 마이그레이션 대상으로 발견됨",
+        "migrate_failed": "리소스 마이그레이션 실패 [%s]: %v",
+        "migrate_success": "리소스 마이그레이션 성공: %s",
+        "complete": "마이그레이션 완료! 성공: %d, 실패: %d",
+        "partial_failed": "일부 리소스 마이그레이션 실패"
+      }
+    },
+    "tenant_storage": {
+      "create_user_dir": "사용자 데이터 디렉터리 생성 실패: %w",
+      "init_user_db": "사용자 %s의 데이터베이스 초기화 실패: %w",
+      "close_user_storage": "사용자 %s의 저장소 닫기 실패: %w"
+    },
+    "user_store": {
+      "read_users": "users.json 읽기 실패: %w",
+      "parse_users": "users.json 구문 분석 실패: %w",
+      "serialize_users": "users.json 직렬화 실패: %w",
+      "invalid_id": "잘못된 ID, [a-z0-9_-]만 허용, 최대 32자",
+      "empty_name": "이름은 비워둘 수 없습니다",
+      "user_exists": "사용자 %s가 이미 존재합니다",
+      "generate_key": "API 키 생성 실패: %w",
+      "user_not_found": "사용자 %s를 찾을 수 없습니다"
+    },
+    "api": {
+      "unauthorized_invalid_key": "인증되지 않음: 잘못된 API 키",
+      "unauthorized_missing_key": "인증되지 않음: API 키 누락",
+      "unauthorized_user_disabled": "인증되지 않음: 사용자가 비활성화됨",
+      "get_user_storage": "사용자 저장소 가져오기 실패: %s"
+    },
+    "conf": {
+      "get_user_dir": "사용자 디렉터리 가져오기 실패: %w",
+      "create_config_dir": "구성 디렉터리 생성 실패: %w",
+      "config_not_exist": "구성 파일이 존재하지 않습니다: %s",
+      "load_config": "구성 파일 불러오기 실패: %w",
+      "parse_config": "구성 파일 구문 분석 실패: %w",
+      "parse_ai_config": "AI 구성 구문 분석 실패: %w",
+      "save_default_config": "기본 구성 저장 실패: %w"
+    }
+  },
+  "ai": {
+    "call_failed": "AI 호출 실패: %w",
+    "max_steps": "작업 완료(최대 추론 단계 도달)",
+    "truncated": "...(결과가 너무 길어서 잘림)",
+    "unknown_action": "알 수 없는 작업: %s",
+    "exec_failed": "실행 실패: %s",
+    "no_resources": "현재 저장된 리소스가 없습니다",
+    "not_found_keyword": "\"%s\"와 일치하는 리소스를 찾을 수 없습니다",
+    "open_failed": "열기 실패: %w",
+    "open_manually": "수동으로 여세요: %s",
+    "delete_confirm": "삭제하려고 합니다: %s\n다음으로 삭제를 확인하세요: ttl del %s",
+    "log_empty": "기간 %s ~ %s 동안 로그 레코드가 없습니다",
+    "log_id_invalid": "로그 ID 형식이 올바르지 않습니다. 숫자여야 합니다",
+    "log_deleted": "로그가 삭제되었습니다",
+    "export_resources": "%d개의 리소스를 내보낼 수 있습니다. `ttl export --type resources`를 사용하여 CSV로 내보내세요",
+    "export_audit": "%d개의 감사 레코드를 내보낼 수 있습니다. `ttl export --type audit`를 사용하여 CSV로 내보내세요",
+    "export_history": "%d개의 기록 레코드를 내보낼 수 있습니다. `ttl export --type history`를 사용하여 CSV로 내보내세요",
+    "export_log": "%d개의 작업 로그 레코드를 내보낼 수 있습니다. `ttl export --type log`를 사용하여 CSV로 내보내세요",
+    "export_unsupported": "지원되지 않는 내보내기 유형: %s. 지원되는 유형: resources, audit, history, log"
+  },
+  "sync": {
+    "dry_run_delete_local": "[dry-run] 로컬 리소스 삭제: %s",
+    "delete_local_failed": "로컬 리소스 %s 삭제 실패: %w",
+    "deleted_local": "로컬 리소스가 삭제됨: %s",
+    "dry_run_add_local": "[dry-run] 로컬 리소스 추가: %s",
+    "add_local_failed": "로컬 리소스 %s 추가 실패: %w",
+    "added_local": "로컬 리소스가 추가됨: %s",
+    "dry_run_update_local": "[dry-run] 로컬 리소스 업데이트: %s",
+    "update_local_failed": "로컬 리소스 %s 업데이트 실패: %w",
+    "updated_local": "로컬 리소스가 업데이트됨: %s",
+    "dry_run_push": "[dry-run] 원격에 푸시: %s",
+    "push_failed": "리소스 %s 푸시 실패: %w",
+    "pushed": "원격에 푸시됨: %s",
+    "dry_run_delete_remote": "[dry-run] 원격 리소스 삭제: %s",
+    "delete_remote_failed": "원격 리소스 %s 삭제 실패: %w",
+    "deleted_remote": "원격 리소스가 삭제됨: %s",
+    "dry_run_update_remote": "[dry-run] 원격 리소스 업데이트: %s",
+    "update_remote_failed": "원격 리소스 %s 업데이트 실패: %w",
+    "updated_remote": "원격 리소스가 업데이트됨: %s",
+    "remote_label": "원격: %s",
+    "local_only": "로컬만(%d):",
+    "remote_only": "원격만(%d):",
+    "conflicts": "내용이 다름(%d):"
+  }
+}

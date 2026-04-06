@@ -1,0 +1,461 @@
+{
+  "language": "简体中文",
+  "version": "1.0.0",
+  "command": {
+    "add": {
+      "short": "添加资源",
+      "long": "添加资源名字和对应的内容，如果资源名字有空格则加上 '' 或者 \"\"。支持转义字符：\\n \\t \\r \\\\ \\\" \\' 等。",
+      "success": "添加成功！",
+      "duplicate": "当前key已经存在数据: %s",
+      "error_fetch": "获取资源失败: %w",
+      "error_save": "保存资源失败: %w",
+      "audit_error": "审计记录失败: %v",
+      "flag_tag": "标签（可指定多次，如：-t ops -t dev）"
+    },
+    "init": {
+      "short": "初始化 shell 补全",
+      "long": "初始化 ttl 的 shell 自动补全功能。自动检测 shell 类型（bash/zsh/fish）并完成配置。",
+      "detected_shell": "检测到您的 Shell: %s",
+      "unsupported_shell": "您的 shell 暂不支持自动补全。",
+      "manual_setup": "请手动配置您的 shell 补全。",
+      "error_home_dir": "获取用户目录失败: %w",
+      "error_create_dir": "创建补全目录失败: %w",
+      "error_generate": "生成补全脚本失败: %w",
+      "error_setup_rc": "配置 shell 配置失败: %w",
+      "script_created": "补全脚本已创建: %s",
+      "success": "初始化完成！",
+      "script_path": "  补全脚本: %s",
+      "rc_configured": "  已配置: %s",
+      "reload_hint": "  执行以下命令立即生效：",
+      "manual_source": "  在您的 shell 配置文件中 source 该脚本",
+      "already_configured": "  Shell 补全已配置，无需重复操作。"
+    },
+    "get": {
+      "short": "获取资源",
+      "long": "获取资源并进行标准输出，可以是资源的名字也可以是资源的标签。",
+      "error_fetch": "获取资源失败: %w",
+      "no_filter_notice": "【注意】：由于没有给出过滤条件，将列出全部的内容数据标题, 可以使用: ttl -h 或者 ttl --help 显示帮助。",
+      "resource_label": "资源：",
+      "tags_label": "标签：",
+      "not_found": "未找到当前资源，资源名: %s",
+      "audit_error": "审计记录失败: %v",
+      "multiple_matches": "发现多个资源，请输入对应的序号获取对应的内容：",
+      "tag_hint": "(标签: %s)",
+      "invalid_input": "输入无效: %w",
+      "invalid_choice": "无效的选择"
+    },
+    "open": {
+      "short": "打开资源",
+      "long": "如果可以打开资源则打开资源，否则将提示错误内容。",
+      "error_fetch": "获取资源失败: %w",
+      "macos_detected": "当前系统是 macOS",
+      "linux_not_supported": "当前系统是 Linux - 未适配",
+      "windows_detected": "当前系统是 Windows， 正在打开：",
+      "system_not_supported": "当前系统是 %s - 未适配"
+    },
+    "update": {
+      "short": "更新资源内容",
+      "long": "更新资源的内容。支持转义字符：\\n \\t \\r \\\\ \\\" \\' 等。",
+      "error_fetch": "获取资源失败: %w",
+      "not_found": "未找到该资源: %s",
+      "audit_error": "审计记录失败: %v"
+    },
+    "delete": {
+      "short": "删除资源",
+      "long": "删除对应的资源（精准匹配）。",
+      "error_fetch": "获取资源失败: %w",
+      "not_found": "未找到该资源: %s",
+      "error_delete": "删除资源失败: %w",
+      "success": "删除成功！"
+    },
+    "tag": {
+      "short": "添加标签",
+      "long": "给指定的资源增加一个或多个标签，方便查看和操作。",
+      "error_fetch": "获取资源失败: %w",
+      "not_found": "未找到该资源",
+      "error_save": "保存资源失败: %w",
+      "success": "标签添加成功！"
+    },
+    "dtag": {
+      "short": "删除标签",
+      "long": "删除资源的一个标签。",
+      "error_fetch": "获取资源失败: %w",
+      "not_found": "未找到该资源",
+      "error_save": "保存资源失败: %w",
+      "success": "标签删除成功！"
+    },
+    "rename": {
+      "short": "重命名资源",
+      "long": "给资源改名字。",
+      "error_fetch": "获取资源失败: %w",
+      "not_found": "未找到该资源",
+      "error_delete_old": "删除旧资源失败: %w",
+      "error_save_new": "保存新资源失败: %w",
+      "success": "重命名成功！"
+    },
+    "config": {
+      "short": "显示配置信息",
+      "long": "显示数据文件的位置等信息。支持子命令 config ai 配置 AI 功能。",
+      "error_get_path": "获取配置路径失败: %w",
+      "data_path_label": "数据文件的位置：",
+      "config_path_label": "配置文件的位置：",
+      "ai_config_label": "AI 配置："
+    },
+    "config_ai": {
+      "short": "配置 AI 功能",
+      "long": "交互式配置 AI 相关参数（API Key、模型地址等）。",
+      "title": "=== 配置 AI 功能 ===",
+      "api_key_prompt": "API Key (必填): ",
+      "api_key_current": "API Key [当前: %s]: ",
+      "api_key_empty": "API Key 不能为空",
+      "api_url_prompt": "API 地址 [%s]: ",
+      "model_prompt": "模型名称 [%s]: ",
+      "timeout_prompt": "超时时间(秒) [%d]: ",
+      "error_save": "保存 AI 配置失败: %w",
+      "success": "配置成功！"
+    },
+    "version": {
+      "short": "显示版本信息",
+      "long": "显示当前工具的版本号。"
+    },
+    "audit": {
+      "short": "查看审计统计",
+      "long": "查看资源的操作统计信息。",
+      "error_fetch": "获取审计统计失败: %w",
+      "title": "=== 审计统计 ===",
+      "total_ops": "总操作次数: %d",
+      "by_operation": "按操作类型统计:",
+      "by_resource": "按资源统计 (前10名):"
+    },
+    "history": {
+      "short": "查看操作历史",
+      "long": "查看详细的操作历史记录，支持分页显示。\n可选的 limit 参数指定显示最近多少条记录（默认20条）。",
+      "invalid_limit": "无效的limit参数: %s",
+      "error_fetch": "获取历史记录失败: %w",
+      "no_history": "暂无历史记录",
+      "title": "=== 操作历史 ===",
+      "showing": "显示最近 %d 条记录 (共 %d 条)"
+    },
+    "log": {
+      "short": "工作日志",
+      "long": "记录、查看和管理工作日志。",
+      "error_save": "保存日志失败: %w",
+      "success": "记录成功！(%s)",
+      "error_query": "查询日志失败: %w",
+      "no_records": "暂无日志记录",
+      "invalid_id": "无效的日志 ID: %s",
+      "delete_success": "删除成功！",
+      "flag_tag": "标签（可多次指定）",
+      "flag_list": "查看日志",
+      "flag_date": "查看指定日期 (YYYY-MM-DD)",
+      "flag_week": "查看本周日志",
+      "flag_month": "查看本月日志",
+      "flag_from": "范围起始日期 (YYYY-MM-DD)",
+      "flag_to": "范围结束日期 (YYYY-MM-DD)",
+      "flag_filter_tag": "按标签过滤（查看模式）",
+      "flag_delete": "删除指定 ID 的日志"
+    },
+    "import": {
+      "short": "导入数据",
+      "long": "从 CSV 或 JSON 文件导入数据到数据库。",
+      "success": "导入完成：%d 条新增，%d 条跳过，%d 条失败",
+      "partial_failed": "部分记录导入失败",
+      "open_failed": "无法打开文件 %s: %w",
+      "unsupported_format": "不支持的格式: %s (支持: csv, json)",
+      "read_csv_failed": "读取 CSV 失败: %w",
+      "csv_empty": "CSV 文件为空或只有表头",
+      "unsupported_type": "不支持的导入类型: %s",
+      "csv_missing_columns": "CSV 缺少必要的列 (key, value)",
+      "get_existing_failed": "获取现有资源失败: %w",
+      "parse_json_failed": "解析 JSON 失败: %w",
+      "invalid_id": "无效的日志 ID: %s",
+      "delete_failed": "删除日志失败: %w"
+    },
+    "export": {
+      "short": "导出数据为 CSV",
+      "long": "将资源、审计记录或操作历史导出为 CSV 格式。",
+      "error_create_file": "创建文件失败: %w",
+      "error_write_bom": "写入 BOM 失败: %w",
+      "error_fetch_resources": "获取资源失败: %w",
+      "error_fetch_audit": "获取审计记录失败: %w",
+      "error_fetch_history": "获取历史记录失败: %w",
+      "error_fetch_log": "获取日志记录失败: %w",
+      "unsupported_type": "不支持的导出类型: %s（支持: resources / audit / history / log）",
+      "error_write_csv": "写入 CSV 失败: %w",
+      "success": "导出成功：%s（%d 条记录）",
+      "flag_output": "输出文件路径（默认写 stdout）",
+      "flag_type": "导出类型：resources / audit / history / log",
+      "flag_bom": "写入 UTF-8 BOM（解决 Excel 中文乱码）"
+    },
+    "ai": {
+      "use": "ai <自然语言输入>",
+      "short": "用自然语言管理你的数据",
+      "long": "通过自然语言与 AI 助手交互，一个命令替代十个。",
+      "not_configured": "请先配置 AI：运行 ttl config ai",
+      "thinking": "思考中..."
+    },
+    "server": {
+      "short": "启动 HTTP 后端服务或管理用户",
+      "long": "启动多租户 HTTP 服务（REST API + MCP HTTP 端点），或通过 user 子命令管理用户。",
+      "user": {
+        "short": "用户管理",
+        "long": "管理多租户用户，包括创建、列出、禁用、启用、重置 Key、删除等操作。"
+      },
+      "user_add": {
+        "short": "创建用户并签发 API Key",
+        "success": "用户创建成功！",
+        "warn_keep_key": "请妥善保管 API Key，后续不会再完整展示。"
+      },
+      "user_list": {
+        "short": "列出所有用户",
+        "no_users": "暂无用户"
+      },
+      "user_disable": {
+        "short": "禁用用户",
+        "success": "用户 %s 已禁用"
+      },
+      "user_enable": {
+        "short": "启用用户",
+        "success": "用户 %s 已启用"
+      },
+      "user_reset_key": {
+        "short": "重新生成用户的 API Key（旧 Key 立即失效）",
+        "success": "用户 %s 的 API Key 已重置",
+        "new_key": "  新 API Key: %s"
+      },
+      "user_delete": {
+        "short": "删除用户（需 --confirm）",
+        "need_confirm": "删除操作需要 --confirm 确认",
+        "warn_delete_data": "警告：删除用户数据目录失败: %v",
+        "success": "用户 %s 已删除"
+      }
+    },
+    "sync": {
+      "short": "本地与远程数据同步",
+      "long": "对比本地与远程数据的差异，并按指定方向同步。",
+      "need_cloud_url": "sync 需要 --cloud-url 参数",
+      "error_fetch_local": "获取本地资源失败: %w",
+      "error_connect_remote": "连接远程服务失败: %w",
+      "error_fetch_remote": "获取远程资源失败: %w",
+      "dry_run_notice": "[dry-run] 仅显示差异，未执行同步",
+      "choose_operation": "请选择操作:",
+      "option_pull": "  pull  - 以远程为准同步全部",
+      "option_push": "  push  - 以本地为准同步全部",
+      "option_skip": "  skip  - 不做任何操作",
+      "skipped": "已跳过",
+      "invalid_choice": "无效的选择: %s",
+      "invalid_direction": "无效的同步方向: %s（支持: pull, push, auto）"
+    },
+    "mcp": {
+      "short": "启动本地 MCP Server（stdio 传输）",
+      "long": "启动 MCP Server，通过 stdin/stdout 与 AI 客户端通信。",
+      "added_successfully": "添加成功",
+      "key_already_exists": "key 已经存在：",
+      "failed_to_save": "保存资源失败",
+      "failed_to_get": "获取资源失败",
+      "no_resources": "没有资源",
+      "all_resources": "所有资源：\n",
+      "not_found": "未找到与 \"%s\" 相关的资源",
+      "resource_not_found": "未找到该资源",
+      "failed_to_update": "更新资源失败",
+      "failed_to_save_resource": "保存资源失败",
+      "failed_to_get_resources": "Failed to get resources",
+      "at_least_one_tag_required": "至少需要一个标签",
+      "tag_added_successfully": "标签添加成功",
+      "tag_deleted_successfully": "标签删除成功",
+      "rename_successfully": "重命名成功",
+      "not_found_resource": "未找到该资源",
+      "failed_to_delete_old": "删除旧资源失败",
+      "failed_to_save_new": "保存新资源失败",
+      "resource_label": "资源：",
+      "tags_label": "标签：",
+      "deleted_successfully": "删除成功",
+      "content_required": "记录日志需要提供 content（日志正文）",
+      "failed_to_save_log": "保存日志失败",
+      "log_recorded": "日志已记录：%s%s（%s）",
+      "no_log_records": "在 %s ~ %s 期间暂无日志记录",
+      "log_deleted_successfully": "日志删除成功",
+      "id_required": "日志 ID 不能为空",
+      "failed_to_delete_log": "删除日志失败",
+      "unsupported_export_type": "不支持的导出类型：%s（支持的类型：resources, audit, history, log）",
+      "failed_to_get_audit": "获取审计数据失败",
+      "failed_to_get_history": "获取历史数据失败",
+      "failed_to_get_log": "获取日志数据失败",
+      "total_records": "Total %d records"
+    },
+    "encrypt": {
+      "short": "启用数据加密",
+      "long": "启用数据加密。如果有现有数据，请使用 --migrate 来加密它们。",
+      "flag_migrate": "加密现有数据",
+      "flag_force": "强制启用加密（不提示）",
+      "enabled": "加密已启用",
+      "migrate_prompt": "检测到现有数据，是否启用加密？[Y/n]",
+      "cancelled": "已取消",
+      "key_generated": "加密密钥已生成，下次启动时将自动启用加密",
+      "success": "加密成功！",
+      "backup_prompt": "请备份密钥文件: %s"
+    },
+    "decrypt": {
+      "short": "禁用数据加密",
+      "long": "禁用加密并解密所有存储的数据。",
+      "flag_keep_key": "解密后保留密钥文件",
+      "not_enabled": "加密未启用",
+      "warning": "警告：解密后所有数据将以明文存储",
+      "confirm_prompt": "是否继续？[y/N]",
+      "data_decrypted": "数据已解密",
+      "key_kept": "密钥文件已保留",
+      "success": "解密成功！密钥文件已删除"
+    },
+    "key": {
+      "short": "管理加密密钥",
+      "long": "管理加密密钥（导出、导入、验证）。",
+      "export_success": "密钥已导出到: %s",
+      "import_success": "密钥已导入",
+      "verify_success": "密钥文件有效"
+    },
+    "migrate": {
+      "short": "数据迁移工具",
+      "long": "将数据从一个存储迁移到另一个存储\n支持的方向：local->cloud, cloud->local, local->local",
+      "invalid_source": "源存储类型必须是 local 或 cloud",
+      "invalid_target": "目标存储类型必须是 local 或 cloud",
+      "same_type": "源存储和目标存储类型不能相同",
+      "need_source_config": "源云存储需要 --source-url 和 --source-key 参数",
+      "flag_source_url": "源云存储 API URL",
+      "flag_source_key": "源云存储 API 密钥",
+      "flag_source_timeout": "源云存储超时时间（秒）"
+    }
+  },
+  "root": {
+    "short": "个人数据管理体系",
+    "long": "个人数据管理体系，用于管理资源和标签。\n支持多种操作如添加、获取、删除资源，以及管理标签等。",
+    "flag_debug": "开启 debug 模式",
+    "flag_storage": "存储类型: local, cloud, sync",
+    "flag_cloud_url": "云存储API地址",
+    "flag_cloud_key": "云存储API密钥",
+    "flag_cloud_timeout": "云存储超时时间(秒)",
+    "flag_conf": "指定配置文件路径（默认使用 ~/.ttl/ttl.ini）"
+  },
+  "error": {
+    "init_db": "初始化数据库失败: %w",
+    "record_history": "记录命令历史失败: %v",
+    "close_db": "关闭数据库失败: %v",
+    "get_history": "获取命令历史失败: %v",
+    "db": {
+      "create_dir": "创建目录失败: %w",
+      "open_db": "打开数据库失败: %w",
+      "bucket_not_exist": "资源桶不存在",
+      "parse_key": "解析key失败: %w",
+      "parse_value": "解析value失败: %w",
+      "serialize_key": "序列化key失败: %w",
+      "serialize_value": "序列化value失败: %w",
+      "serialize_request": "序列化请求体失败: %w",
+      "create_request": "创建请求失败: %w",
+      "request_failed": "请求失败: %w",
+      "read_response": "读取响应失败: %w",
+      "parse_response": "解析响应失败: %w, body: %s",
+      "api_error": "API 错误: %s",
+      "parse_resources": "解析资源列表失败: %w",
+      "serialize_audit": "序列化审计记录失败: %w",
+      "parse_audit": "解析审计记录失败: %w",
+      "serialize_history": "序列化历史记录失败: %w",
+      "serialize_log": "序列化日志记录失败: %w",
+      "parse_log": "解析日志记录失败: %w",
+      "log_not_found": "未找到该日志记录"
+    },
+    "storage": {
+      "need_cloud_config": "云存储需要提供API地址和密钥",
+      "unsupported_type": "不支持的存储类型: %s",
+      "not_initialized": "存储未初始化",
+      "migrate": {
+        "title": "开始数据迁移: %s -> %s",
+        "need_source_config": "源云存储需要提供API地址和密钥",
+        "unsupported_source": "不支持的源存储类型: %s",
+        "init_source_failed": "初始化源存储失败: %w",
+        "need_target_config": "目标云存储需要提供API地址和密钥",
+        "unsupported_target": "不支持的目标存储类型: %s",
+        "init_target_failed": "初始化目标存储失败: %w",
+        "reading_source": "从源存储读取数据...",
+        "read_failed": "读取源数据失败: %w",
+        "found_resources": "找到 %d 个资源需要迁移",
+        "migrate_failed": "迁移资源失败 [%s]: %v",
+        "migrate_success": "成功迁移资源: %s",
+        "complete": "迁移完成! 成功: %d, 失败: %d",
+        "partial_failed": "部分资源迁移失败"
+      }
+    },
+    "tenant_storage": {
+      "create_user_dir": "创建用户数据目录失败: %w",
+      "init_user_db": "初始化用户 %s 的数据库失败: %w",
+      "close_user_storage": "关闭用户 %s 存储失败: %w"
+    },
+    "user_store": {
+      "read_users": "读取 users.json 失败: %w",
+      "parse_users": "解析 users.json 失败: %w",
+      "serialize_users": "序列化 users.json 失败: %w",
+      "invalid_id": "ID 不合法，仅允许 [a-z0-9_-]，最长 32 字符",
+      "empty_name": "name 不能为空",
+      "user_exists": "用户 %s 已存在",
+      "generate_key": "生成 API Key 失败: %w",
+      "user_not_found": "用户 %s 不存在"
+    },
+    "api": {
+      "unauthorized_invalid_key": "未授权：API Key 无效",
+      "unauthorized_missing_key": "未授权：缺少 API Key",
+      "unauthorized_user_disabled": "未授权：用户已禁用",
+      "get_user_storage": "获取用户存储失败: %s"
+    },
+    "conf": {
+      "get_user_dir": "获取用户目录失败: %w",
+      "create_config_dir": "创建配置目录失败: %w",
+      "config_not_exist": "配置文件不存在: %s",
+      "load_config": "加载配置文件失败: %w",
+      "parse_config": "解析配置文件失败: %w",
+      "parse_ai_config": "解析AI配置失败: %w",
+      "save_default_config": "保存默认配置失败: %w"
+    }
+  },
+  "ai": {
+    "call_failed": "AI 调用失败: %w",
+    "max_steps": "操作已完成（达到最大推理轮数）",
+    "truncated": "...(结果过长已截断)",
+    "unknown_action": "未知操作: %s",
+    "exec_failed": "执行失败: %s",
+    "no_resources": "当前没有存储任何资源",
+    "not_found_keyword": "未找到与 \"%s\" 相关的资源",
+    "open_failed": "打开失败: %w",
+    "open_manually": "请手动打开：%s",
+    "delete_confirm": "即将删除：%s\n请使用 ttl del %s 确认删除",
+    "log_empty": "在 %s ~ %s 期间暂无日志记录",
+    "log_id_invalid": "日志 ID 格式不正确，应为数字",
+    "log_deleted": "日志删除成功",
+    "export_resources": "共有 %d 条资源可导出。请使用 `ttl export --type resources` 导出为 CSV 文件",
+    "export_audit": "共有 %d 条审计记录可导出。请使用 `ttl export --type audit` 导出为 CSV 文件",
+    "export_history": "共有 %d 条历史记录可导出。请使用 `ttl export --type history` 导出为 CSV 文件",
+    "export_log": "共有 %d 条工作日志可导出。请使用 `ttl export --type log` 导出为 CSV 文件",
+    "export_unsupported": "不支持的导出类型：%s。支持的类型：resources, audit, history, log"
+  },
+  "sync": {
+    "dry_run_delete_local": "[dry-run] 删除本地资源: %s",
+    "delete_local_failed": "删除本地资源 %s 失败: %w",
+    "deleted_local": "已删除本地资源: %s",
+    "dry_run_add_local": "[dry-run] 新增本地资源: %s",
+    "add_local_failed": "新增本地资源 %s 失败: %w",
+    "added_local": "已新增本地资源: %s",
+    "dry_run_update_local": "[dry-run] 覆盖本地资源: %s",
+    "update_local_failed": "覆盖本地资源 %s 失败: %w",
+    "updated_local": "已覆盖本地资源: %s",
+    "dry_run_push": "[dry-run] 推送到远程: %s",
+    "push_failed": "推送资源 %s 失败: %w",
+    "pushed": "已推送到远程: %s",
+    "dry_run_delete_remote": "[dry-run] 删除远程资源: %s",
+    "delete_remote_failed": "删除远程资源 %s 失败: %w",
+    "deleted_remote": "已删除远程资源: %s",
+    "dry_run_update_remote": "[dry-run] 覆盖远程资源: %s",
+    "update_remote_failed": "覆盖远程资源 %s 失败: %w",
+    "updated_remote": "已覆盖远程资源: %s",
+    "remote_label": "远程: %s",
+    "local_only": "仅本地存在 (%d):",
+    "remote_only": "仅远程存在 (%d):",
+    "conflicts": "内容不同 (%d):"
+  }
+}

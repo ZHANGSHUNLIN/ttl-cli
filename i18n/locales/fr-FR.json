@@ -1,0 +1,461 @@
+{
+  "language": "Français",
+  "version": "1.0.0",
+  "command": {
+    "add": {
+      "short": "Ajouter une ressource",
+      "long": "Ajouter une ressource avec son nom et son contenu. Utilisez des guillemets si le nom de la ressource contient des espaces. Prend en charge les caractères d'échappement: \\n \\t \\r \\\\ \\\" \\'.",
+      "success": "Ajouté avec succès!",
+      "duplicate": "La clé existe déjà: %s",
+      "error_fetch": "Échec de la récupération des ressources: %w",
+      "error_save": "Échec de l'enregistrement de la ressource: %w",
+      "audit_error": "Échec de l'enregistrement de l'audit: %v",
+      "flag_tag": "Tags (peut être spécifié plusieurs fois, ex: -t ops -t dev)"
+    },
+    "init": {
+      "short": "Initialiser la complétion de shell",
+      "long": "Initialiser la complétion automatique de shell pour ttl. Détecte votre shell (bash/zsh/fish) et le configure automatiquement.",
+      "detected_shell": "Shell détecté: %s",
+      "unsupported_shell": "La complétion automatique de shell n'est pas prise en charge pour votre shell.",
+      "manual_setup": "Veuillez configurer manuellement la complétion pour votre shell.",
+      "error_home_dir": "Échec de l'obtention du répertoire home: %w",
+      "error_create_dir": "Échec de la création du répertoire de complétion: %w",
+      "error_generate": "Échec de la génération du script de complétion: %w",
+      "error_setup_rc": "Échec de la configuration du shell: %w",
+      "script_created": "Script de complétion créé: %s",
+      "success": "Initialisation terminée!",
+      "script_path": "  Script: %s",
+      "rc_configured": "  Configuré: %s",
+      "reload_hint": "  Exécutez la commande suivante pour appliquer les modifications:",
+      "manual_source": "  Sourcez le script dans votre fichier de configuration de shell",
+      "already_configured": "  La complétion de shell est déjà configurée."
+    },
+    "get": {
+      "short": "Obtenir une ressource",
+      "long": "Récupérer et afficher une ressource par nom ou par tag.",
+      "error_fetch": "Échec de la récupération des ressources: %w",
+      "no_filter_notice": "[Note] Aucun filtre fourni. Affichage de toutes les clés de ressources. Utilisez 'ttl -h' ou 'ttl --help' pour l'aide.",
+      "resource_label": "Ressource:",
+      "tags_label": "Tags:",
+      "not_found": "Ressource non trouvée: %s",
+      "audit_error": "Échec de l'enregistrement de l'audit: %v",
+      "multiple_matches": "Plusieurs ressources trouvées. Entrez le numéro pour sélectionner:",
+      "tag_hint": "(tag: %s)",
+      "invalid_input": "Entrée invalide: %w",
+      "invalid_choice": "Choix invalide"
+    },
+    "open": {
+      "short": "Ouvrir une ressource",
+      "long": "Ouvrir la ressource si possible, sinon afficher un message d'erreur.",
+      "error_fetch": "Échec de la récupération des ressources: %w",
+      "macos_detected": "Le système actuel est macOS",
+      "linux_not_supported": "Le système actuel est Linux - non pris en charge",
+      "windows_detected": "Le système actuel est Windows, ouverture de:",
+      "system_not_supported": "Le système actuel est %s - non pris en charge"
+    },
+    "update": {
+      "short": "Mettre à jour le contenu de la ressource",
+      "long": "Mettre à jour le contenu d'une ressource. Prend en charge les caractères d'échappement: \\n \\t \\r \\\\ \\\" \\'.",
+      "error_fetch": "Échec de la récupération des ressources: %w",
+      "not_found": "Ressource non trouvée: %s",
+      "audit_error": "Échec de l'enregistrement de l'audit: %v"
+    },
+    "delete": {
+      "short": "Supprimer une ressource",
+      "long": "Supprimer une ressource (correspondance exacte).",
+      "error_fetch": "Échec de la récupération des ressources: %w",
+      "not_found": "Ressource non trouvée: %s",
+      "error_delete": "Échec de la suppression de la ressource: %w",
+      "success": "Supprimé avec succès!"
+    },
+    "tag": {
+      "short": "Ajouter des tags",
+      "long": "Ajouter un ou plusieurs tags à une ressource pour faciliter l'affichage et la gestion.",
+      "error_fetch": "Échec de la récupération des ressources: %w",
+      "not_found": "Ressource non trouvée",
+      "error_save": "Échec de l'enregistrement de la ressource: %w",
+      "success": "Tags ajoutés avec succès!"
+    },
+    "dtag": {
+      "short": "Supprimer un tag",
+      "long": "Supprimer un tag d'une ressource.",
+      "error_fetch": "Échec de la récupération des ressources: %w",
+      "not_found": "Ressource non trouvée",
+      "error_save": "Échec de l'enregistrement de la ressource: %w",
+      "success": "Tag supprimé avec succès!"
+    },
+    "rename": {
+      "short": "Renommer une ressource",
+      "long": "Changer le nom d'une ressource.",
+      "error_fetch": "Échec de la récupération des ressources: %w",
+      "not_found": "Ressource non trouvée",
+      "error_delete_old": "Échec de la suppression de l'ancienne ressource: %w",
+      "error_save_new": "Échec de l'enregistrement de la nouvelle ressource: %w",
+      "success": "Renommé avec succès!"
+    },
+    "config": {
+      "short": "Afficher la configuration",
+      "long": "Afficher des informations sur l'emplacement du fichier de données. Utilisez la sous-commande 'config ai' pour configurer la fonctionnalité AI.",
+      "error_get_path": "Échec de l'obtention du chemin de configuration: %w",
+      "data_path_label": "Emplacement du fichier de données:",
+      "config_path_label": "Emplacement du fichier de configuration:",
+      "ai_config_label": "Configuration AI:"
+    },
+    "config_ai": {
+      "short": "Configurer l'AI",
+      "long": "Configurer de manière interactive les paramètres AI (Clé API, URL du modèle, etc.).",
+      "title": "=== Configuration AI ===",
+      "api_key_prompt": "Clé API (requis): ",
+      "api_key_current": "Clé API [actuel: %s]: ",
+      "api_key_empty": "La clé API ne peut pas être vide",
+      "api_url_prompt": "URL API [%s]: ",
+      "model_prompt": "Nom du modèle [%s]: ",
+      "timeout_prompt": "Délai d'attente (secondes) [%d]: ",
+      "error_save": "Échec de l'enregistrement de la configuration AI: %w",
+      "success": "Configuration enregistrée!"
+    },
+    "version": {
+      "short": "Afficher la version",
+      "long": "Afficher la version actuelle de l'outil."
+    },
+    "audit": {
+      "short": "Voir les statistiques d'audit",
+      "long": "Afficher les statistiques d'opération pour les ressources.",
+      "error_fetch": "Échec de la récupération des statistiques d'audit: %w",
+      "title": "=== Statistiques d'audit ===",
+      "total_ops": "Opérations totales: %d",
+      "by_operation": "Par type d'opération:",
+      "by_resource": "Par ressource (top 10):"
+    },
+    "history": {
+      "short": "Voir l'historique des opérations",
+      "long": "Afficher l'historique détaillé des opérations. Prend en charge la pagination.\nLe paramètre optionnel limit spécifie combien d'enregistrements récents afficher (par défaut 20).",
+      "invalid_limit": "Paramètre limit invalide: %s",
+      "error_fetch": "Échec de la récupération de l'historique: %w",
+      "no_history": "Aucun enregistrement d'historique",
+      "title": "=== Historique des opérations ===",
+      "showing": "Affichage de %d enregistrements récents (total %d)"
+    },
+    "log": {
+      "short": "Journal de travail",
+      "long": "Enregistrer, afficher et gérer les journaux de travail.",
+      "error_save": "Échec de l'enregistrement du journal: %w",
+      "success": "Enregistré avec succès! (%s)",
+      "error_query": "Échec de la requête des journaux: %w",
+      "no_records": "Aucun enregistrement de journal",
+      "invalid_id": "ID de journal invalide: %s",
+      "delete_success": "Supprimé avec succès!",
+      "flag_tag": "Tags (peut être spécifié plusieurs fois)",
+      "flag_list": "Voir les journaux",
+      "flag_date": "Voir une date spécifique (YYYY-MM-DD)",
+      "flag_week": "Voir les journaux de cette semaine",
+      "flag_month": "Voir les journaux de ce mois",
+      "flag_from": "Date de début de plage (YYYY-MM-DD)",
+      "flag_to": "Date de fin de plage (YYYY-MM-DD)",
+      "flag_filter_tag": "Filtrer par tag (mode affichage)",
+      "flag_delete": "Supprimer le journal avec l'ID spécifié"
+    },
+    "import": {
+      "short": "Importer des données",
+      "long": "Importer des données depuis un fichier CSV ou JSON dans la base de données.",
+      "success": "Importation terminée: %d ajoutés, %d ignorés, %d échoués",
+      "partial_failed": "Certains enregistrements ont échoué lors de l'importation",
+      "open_failed": "Échec de l'ouverture du fichier %s: %w",
+      "unsupported_format": "Format non pris en charge: %s (formats pris en charge: csv, json)",
+      "read_csv_failed": "Échec de la lecture du CSV: %w",
+      "csv_empty": "Le fichier CSV est vide ou ne contient que l'en-tête",
+      "unsupported_type": "Type d'importation non pris en charge: %s",
+      "csv_missing_columns": "Colonnes manquantes dans le CSV (key, value)",
+      "get_existing_failed": "Échec de la récupération des ressources existantes: %w",
+      "parse_json_failed": "Échec de l'analyse JSON: %w",
+      "invalid_id": "ID de journal invalide: %s",
+      "delete_failed": "Échec de la suppression du journal: %w"
+    },
+    "export": {
+      "short": "Exporter les données au format CSV",
+      "long": "Exporter les ressources, les enregistrements d'audit ou l'historique des opérations au format CSV.",
+      "error_create_file": "Échec de la création du fichier: %w",
+      "error_write_bom": "Échec de l'écriture du BOM: %w",
+      "error_fetch_resources": "Échec de la récupération des ressources: %w",
+      "error_fetch_audit": "Échec de la récupération des enregistrements d'audit: %w",
+      "error_fetch_history": "Échec de la récupération de l'historique: %w",
+      "error_fetch_log": "Échec de la récupération des enregistrements de journal: %w",
+      "unsupported_type": "Type d'exportation non pris en charge: %s (formats pris en charge: resources / audit / history / log)",
+      "error_write_csv": "Échec de l'écriture du CSV: %w",
+      "success": "Exporté avec succès: %s (%d enregistrements)",
+      "flag_output": "Chemin du fichier de sortie (par défaut: stdout)",
+      "flag_type": "Type d'exportation: resources / audit / history / log",
+      "flag_bom": "Écrire le BOM UTF-8 (corrige les problèmes d'encodage Excel)"
+    },
+    "ai": {
+      "use": "ai <entrée en langage naturel>",
+      "short": "Gérer les données en langage naturel",
+      "long": "Interagir avec l'assistant AI en langage naturel. Une commande en remplace dix.",
+      "not_configured": "Veuillez d'abord configurer l'AI: exécutez 'ttl config ai'",
+      "thinking": "Réflexion..."
+    },
+    "server": {
+      "short": "Démarrer le backend HTTP ou gérer les utilisateurs",
+      "long": "Démarrer le service HTTP multi-locataire (API REST + endpoints HTTP MCP), ou gérer les utilisateurs via les sous-commandes utilisateur.",
+      "user": {
+        "short": "Gestion des utilisateurs",
+        "long": "Gérer les utilisateurs multi-locataires, y compris créer, lister, désactiver, activer, réinitialiser la clé, supprimer, etc."
+      },
+      "user_add": {
+        "short": "Créer un utilisateur et émettre une clé API",
+        "success": "Utilisateur créé avec succès!",
+        "warn_keep_key": "Veuillez conserver la clé API en sécurité. Elle ne sera plus affichée en entier."
+      },
+      "user_list": {
+        "short": "Lister tous les utilisateurs",
+        "no_users": "Aucun utilisateur"
+      },
+      "user_disable": {
+        "short": "Désactiver un utilisateur",
+        "success": "Utilisateur %s désactivé"
+      },
+      "user_enable": {
+        "short": "Activer un utilisateur",
+        "success": "Utilisateur %s activé"
+      },
+      "user_reset_key": {
+        "short": "Régénérer la clé API utilisateur (l'ancienne clé expire immédiatement)",
+        "success": "La clé API de l'utilisateur %s a été réinitialisée",
+        "new_key": "  Nouvelle clé API: %s"
+      },
+      "user_delete": {
+        "short": "Supprimer un utilisateur (nécessite --confirm)",
+        "need_confirm": "L'opération de suppression nécessite --confirm",
+        "warn_delete_data": "Avertissement: échec de la suppression du répertoire de données utilisateur: %v",
+        "success": "Utilisateur %s supprimé"
+      }
+    },
+    "sync": {
+      "short": "Synchroniser les données locales et distantes",
+      "long": "Comparer les différences entre les données locales et distantes et synchroniser dans la direction spécifiée.",
+      "need_cloud_url": "sync nécessite le paramètre --cloud-url",
+      "error_fetch_local": "Échec de la récupération des ressources locales: %w",
+      "error_connect_remote": "Échec de la connexion au service distant: %w",
+      "error_fetch_remote": "Échec de la récupération des ressources distantes: %w",
+      "dry_run_notice": "[dry-run] Affichage des différences uniquement, aucune synchronisation effectuée",
+      "choose_operation": "Veuillez choisir une opération:",
+      "option_pull": "  pull  - Synchroniser tout avec le distant comme source",
+      "option_push": "  push  - Synchroniser tout avec le local comme source",
+      "option_skip": "  skip  - Ne rien faire",
+      "skipped": "Ignoré",
+      "invalid_choice": "Choix invalide: %s",
+      "invalid_direction": "Direction de synchronisation invalide: %s (formats pris en charge: pull, push, auto)"
+    },
+    "mcp": {
+      "short": "Démarrer le serveur MCP local (transport stdio)",
+      "long": "Démarrer le serveur MCP, communiquant via stdin/stdout avec les clients AI.",
+      "added_successfully": "Ajouté avec succès",
+      "key_already_exists": "La clé existe déjà: ",
+      "failed_to_save": "Échec de l'enregistrement de la ressource",
+      "failed_to_get": "Échec de la récupération des ressources",
+      "no_resources": "Aucune ressource",
+      "all_resources": "Toutes les ressources:\n",
+      "not_found": "Ressource non trouvée: ",
+      "resource_not_found": "Ressource non trouvée",
+      "failed_to_update": "Échec de la mise à jour de la ressource",
+      "failed_to_save_resource": "Échec de l'enregistrement de la ressource",
+      "failed_to_get_resources": "Échec de la récupération des ressources",
+      "at_least_one_tag_required": "Au moins un tag est requis",
+      "tag_added_successfully": "Tags ajoutés avec succès",
+      "tag_deleted_successfully": "Tag supprimé avec succès",
+      "rename_successfully": "Renommé avec succès",
+      "not_found_resource": "Ressource non trouvée",
+      "failed_to_delete_old": "Échec de la suppression de l'ancienne ressource",
+      "failed_to_save_new": "Échec de l'enregistrement de la nouvelle ressource",
+      "resource_label": "Ressource: ",
+      "tags_label": "Tags: ",
+      "deleted_successfully": "Supprimé avec succès",
+      "content_required": "Le contenu du journal est requis",
+      "failed_to_save_log": "Échec de l'enregistrement du journal",
+      "log_recorded": "Journal enregistré: %s%s (%s)",
+      "no_log_records": "Aucun enregistrement de journal pendant la période %s ~ %s",
+      "log_deleted_successfully": "Journal supprimé avec succès",
+      "id_required": "L'ID du journal ne peut pas être vide",
+      "failed_to_delete_log": "Échec de la suppression du journal",
+      "unsupported_export_type": "Type d'exportation non pris en charge: %s (formats pris en charge: resources, audit, history, log)",
+      "failed_to_get_audit": "Échec de la récupération des enregistrements d'audit",
+      "failed_to_get_history": "Échec de la récupération des enregistrements d'historique",
+      "failed_to_get_log": "Échec de la récupération des enregistrements de journal",
+      "total_records": "Total de %d enregistrements"
+    },
+    "encrypt": {
+      "short": "Activer le chiffrement des données",
+      "long": "Activer le chiffrement pour les données stockées. S'il existe des données, utilisez --migrate pour les chiffrer.",
+      "flag_migrate": "Chiffrer les données existantes",
+      "flag_force": "Forcer l'activation du chiffrement sans confirmation",
+      "enabled": "Chiffrement activé",
+      "migrate_prompt": "Données existantes détectées, activer le chiffrement ? [Y/n]",
+      "cancelled": "Annulé",
+      "key_generated": "Clé de chiffrement générée, sera automatiquement activée au prochain démarrage",
+      "success": "Chiffrement activé!",
+      "backup_prompt": "Veuillez sauvegarder le fichier de clé: %s"
+    },
+    "decrypt": {
+      "short": "Désactiver le chiffrement des données",
+      "long": "Désactiver le chiffrement et déchiffrer toutes les données stockées.",
+      "flag_keep_key": "Garder le fichier de clé après le déchiffrement",
+      "not_enabled": "Chiffrement non activé",
+      "warning": "Avertissement: Toutes les données seront stockées en texte clair après le déchiffrement",
+      "confirm_prompt": "Continuer ? [y/N]",
+      "data_decrypted": "Données déchiffrées",
+      "key_kept": "Fichier de clé conservé",
+      "success": "Déchiffrement terminé! Fichier de clé supprimé"
+    },
+    "key": {
+      "short": "Gérer la clé de chiffrement",
+      "long": "Gérer la clé de chiffrement (exporter, importer, vérifier).",
+      "export_success": "Clé exportée vers: %s",
+      "import_success": "Clé importée",
+      "verify_success": "Le fichier de clé est valide"
+    },
+    "migrate": {
+      "short": "Outil de migration de données",
+      "long": "Migrer les données d'un stockage vers un autre\nDirections prises en charge: local->cloud, cloud->local, local->local",
+      "invalid_source": "Le type de stockage source doit être local ou cloud",
+      "invalid_target": "Le type de stockage cible doit être local ou cloud",
+      "same_type": "Les types de stockage source et cible ne peuvent pas être identiques",
+      "need_source_config": "Le stockage cloud source nécessite les paramètres --source-url et --source-key",
+      "flag_source_url": "URL API du stockage cloud source",
+      "flag_source_key": "Clé API du stockage cloud source",
+      "flag_source_timeout": "Délai d'attente du stockage cloud source (secondes)"
+    }
+  },
+  "root": {
+    "short": "Système de gestion de données personnelles",
+    "long": "Système de gestion de données personnelles pour gérer les ressources et les tags.\nPrend en charge les opérations telles que l'ajout, la récupération, la suppression de ressources, et la gestion des tags.",
+    "flag_debug": "Activer le mode débogage",
+    "flag_storage": "Type de stockage: local, cloud, sync",
+    "flag_cloud_url": "URL API du stockage cloud",
+    "flag_cloud_key": "Clé API du stockage cloud",
+    "flag_cloud_timeout": "Délai d'attente du stockage cloud (secondes)",
+    "flag_conf": "Spécifier le chemin du fichier de configuration (par défaut: ~/.ttl/ttl.ini)"
+  },
+  "error": {
+    "init_db": "Échec de l'initialisation de la base de données: %w",
+    "record_history": "Échec de l'enregistrement de l'historique des commandes: %v",
+    "close_db": "Échec de la fermeture de la base de données: %v",
+    "get_history": "Échec de la récupération de l'historique des commandes: %v",
+    "db": {
+      "create_dir": "Échec de la création du répertoire: %w",
+      "open_db": "Échec de l'ouverture de la base de données: %w",
+      "bucket_not_exist": "Le bucket de ressources n'existe pas",
+      "parse_key": "Échec de l'analyse de la clé: %w",
+      "parse_value": "Échec de l'analyse de la valeur: %w",
+      "serialize_key": "Échec de la sérialisation de la clé: %w",
+      "serialize_value": "Échec de la sérialisation de la valeur: %w",
+      "serialize_request": "Échec de la sérialisation du corps de la requête: %w",
+      "create_request": "Échec de la création de la requête: %w",
+      "request_failed": "Échec de la requête: %w",
+      "read_response": "Échec de la lecture de la réponse: %w",
+      "parse_response": "Échec de l'analyse de la réponse: %w, body: %s",
+      "api_error": "Erreur API: %s",
+      "parse_resources": "Échec de l'analyse de la liste des ressources: %w",
+      "serialize_audit": "Échec de la sérialisation de l'enregistrement d'audit: %w",
+      "parse_audit": "Échec de l'analyse de l'enregistrement d'audit: %w",
+      "serialize_history": "Échec de la sérialisation de l'enregistrement d'historique: %w",
+      "serialize_log": "Échec de la sérialisation de l'enregistrement de journal: %w",
+      "parse_log": "Échec de l'analyse de l'enregistrement de journal: %w",
+      "log_not_found": "Enregistrement de journal non trouvé"
+    },
+    "storage": {
+      "need_cloud_config": "Le stockage cloud nécessite une URL API et une clé",
+      "unsupported_type": "Type de stockage non pris en charge: %s",
+      "not_initialized": "Stockage non initialisé",
+      "migrate": {
+        "title": "Démarrage de la migration de données: %s -> %s",
+        "need_source_config": "Le stockage cloud source nécessite une URL API et une clé",
+        "unsupported_source": "Type de stockage source non pris en charge: %s",
+        "init_source_failed": "Échec de l'initialisation du stockage source: %w",
+        "need_target_config": "Le stockage cloud cible nécessite une URL API et une clé",
+        "unsupported_target": "Type de stockage cible non pris en charge: %s",
+        "init_target_failed": "Échec de l'initialisation du stockage cible: %w",
+        "reading_source": "Lecture depuis le stockage source...",
+        "read_failed": "Échec de la lecture des données source: %w",
+        "found_resources": "%d ressources trouvées à migrer",
+        "migrate_failed": "Échec de la migration de la ressource [%s]: %v",
+        "migrate_success": "Migration réussie de la ressource: %s",
+        "complete": "Migration terminée! Réussi: %d, Échoué: %d",
+        "partial_failed": "Certaines ressources ont échoué lors de la migration"
+      }
+    },
+    "tenant_storage": {
+      "create_user_dir": "Échec de la création du répertoire de données utilisateur: %w",
+      "init_user_db": "Échec de l'initialisation de la base de données pour l'utilisateur %s: %w",
+      "close_user_storage": "Échec de la fermeture du stockage pour l'utilisateur %s: %w"
+    },
+    "user_store": {
+      "read_users": "Échec de la lecture de users.json: %w",
+      "parse_users": "Échec de l'analyse de users.json: %w",
+      "serialize_users": "Échec de la sérialisation de users.json: %w",
+      "invalid_id": "ID invalide, seuls [a-z0-9_-] sont autorisés, max 32 caractères",
+      "empty_name": "le nom ne peut pas être vide",
+      "user_exists": "L'utilisateur %s existe déjà",
+      "generate_key": "Échec de la génération de la clé API: %w",
+      "user_not_found": "Utilisateur %s non trouvé"
+    },
+    "api": {
+      "unauthorized_invalid_key": "Non autorisé: Clé API invalide",
+      "unauthorized_missing_key": "Non autorisé: Clé API manquante",
+      "unauthorized_user_disabled": "Non autorisé: L'utilisateur est désactivé",
+      "get_user_storage": "Échec de l'obtention du stockage utilisateur: %s"
+    },
+    "conf": {
+      "get_user_dir": "Échec de l'obtention du répertoire utilisateur: %w",
+      "create_config_dir": "Échec de la création du répertoire de configuration: %w",
+      "config_not_exist": "Le fichier de configuration n'existe pas: %s",
+      "load_config": "Échec du chargement du fichier de configuration: %w",
+      "parse_config": "Échec de l'analyse du fichier de configuration: %w",
+      "parse_ai_config": "Échec de l'analyse de la configuration AI: %w",
+      "save_default_config": "Échec de l'enregistrement de la configuration par défaut: %w"
+    }
+  },
+  "ai": {
+    "call_failed": "Échec de l'appel AI: %w",
+    "max_steps": "Opération terminée (nombre maximum d'étapes de raisonnement atteint)",
+    "truncated": "...(résultat trop long, tronqué)",
+    "unknown_action": "Action inconnue: %s",
+    "exec_failed": "Échec de l'exécution: %s",
+    "no_resources": "Aucune ressource stockée actuellement",
+    "not_found_keyword": "Aucune ressource trouvée correspondant à \"%s\"",
+    "open_failed": "Échec de l'ouverture: %w",
+    "open_manually": "Veuillez ouvrir manuellement: %s",
+    "delete_confirm": "Sur le point de supprimer: %s\nConfirmez la suppression avec: ttl del %s",
+    "log_empty": "Aucun enregistrement de journal pendant la période %s ~ %s",
+    "log_id_invalid": "Format d'ID de journal incorrect, doit être un nombre",
+    "log_deleted": "Journal supprimé avec succès",
+    "export_resources": "%d ressources disponibles pour l'export. Utilisez `ttl export --type resources` pour exporter au format CSV",
+    "export_audit": "%d enregistrements d'audit disponibles pour l'export. Utilisez `ttl export --type audit` pour exporter au format CSV",
+    "export_history": "%d enregistrements d'historique disponibles pour l'export. Utilisez `ttl export --type history` pour exporter au format CSV",
+    "export_log": "%d enregistrements de journal de travail disponibles pour l'export. Utilisez `ttl export --type log` pour exporter au format CSV",
+    "export_unsupported": "Type d'exportation non pris en charge: %s. Types pris en charge: resources, audit, history, log"
+  },
+  "sync": {
+    "dry_run_delete_local": "[dry-run] Supprimer la ressource locale: %s",
+    "delete_local_failed": "Échec de la suppression de la ressource locale %s: %w",
+    "deleted_local": "Ressource locale supprimée: %s",
+    "dry_run_add_local": "[dry-run] Ajouter la ressource locale: %s",
+    "add_local_failed": "Échec de l'ajout de la ressource locale %s: %w",
+    "added_local": "Ressource locale ajoutée: %s",
+    "dry_run_update_local": "[dry-run] Mettre à jour la ressource locale: %s",
+    "update_local_failed": "Échec de la mise à jour de la ressource locale %s: %w",
+    "updated_local": "Ressource locale mise à jour: %s",
+    "dry_run_push": "[dry-run] Pousser vers le distant: %s",
+    "push_failed": "Échec de la poussée de la ressource %s: %w",
+    "pushed": "Poussé vers le distant: %s",
+    "dry_run_delete_remote": "[dry-run] Supprimer la ressource distante: %s",
+    "delete_remote_failed": "Échec de la suppression de la ressource distante %s: %w",
+    "deleted_remote": "Ressource distante supprimée: %s",
+    "dry_run_update_remote": "[dry-run] Mettre à jour la ressource distante: %s",
+    "update_remote_failed": "Échec de la mise à jour de la ressource distante %s: %w",
+    "updated_remote": "Ressource distante mise à jour: %s",
+    "remote_label": "Distant: %s",
+    "local_only": "Uniquement en local (%d):",
+    "remote_only": "Uniquement à distance (%d):",
+    "conflicts": "Le contenu diffère (%d):"
+  }
+}

@@ -1,0 +1,461 @@
+{
+  "language": "English (US)",
+  "version": "1.0.0",
+  "command": {
+    "add": {
+      "short": "Add a resource",
+      "long": "Add a resource with its name and content. Use quotes if the resource name contains spaces. Supports escape characters: \\n \\t \\r \\\\ \\\" \\'.",
+      "success": "Added successfully!",
+      "duplicate": "Key already exists: %s",
+      "error_fetch": "Failed to get resources: %w",
+      "error_save": "Failed to save resource: %w",
+      "audit_error": "Failed to record audit: %v",
+      "flag_tag": "Tags (can be specified multiple times, e.g. -t ops -t dev)"
+    },
+    "init": {
+      "short": "Initialize shell completion",
+      "long": "Initialize shell auto-completion for ttl. Detects your shell (bash/zsh/fish) and sets up automatically.",
+      "detected_shell": "Detected shell: %s",
+      "unsupported_shell": "Shell auto-completion is not supported for your shell.",
+      "manual_setup": "Please manually configure completion for your shell.",
+      "error_home_dir": "Failed to get home directory: %w",
+      "error_create_dir": "Failed to create completion directory: %w",
+      "error_generate": "Failed to generate completion script: %w",
+      "error_setup_rc": "Failed to setup shell config: %w",
+      "script_created": "Completion script created: %s",
+      "success": "Initialization complete!",
+      "script_path": "  Script: %s",
+      "rc_configured": "  Configured: %s",
+      "reload_hint": "  Run the following command to apply changes:",
+      "manual_source": "  Source the script in your shell config file",
+      "already_configured": "  Shell completion is already configured."
+    },
+    "get": {
+      "short": "Get a resource",
+      "long": "Get and display a resource by name or tag.",
+      "error_fetch": "Failed to get resources: %w",
+      "no_filter_notice": "[Note] No filter provided. Listing all resource keys. Use 'ttl -h' or 'ttl --help' for help.",
+      "resource_label": "Resource:",
+      "tags_label": "Tags:",
+      "not_found": "Resource not found: %s",
+      "audit_error": "Failed to record audit: %v",
+      "multiple_matches": "Found multiple resources. Enter the number to select:",
+      "tag_hint": "(tag: %s)",
+      "invalid_input": "Invalid input: %w",
+      "invalid_choice": "Invalid choice"
+    },
+    "open": {
+      "short": "Open a resource",
+      "long": "Open the resource if possible, otherwise show an error message.",
+      "error_fetch": "Failed to get resources: %w",
+      "macos_detected": "Current system is macOS",
+      "linux_not_supported": "Current system is Linux - not supported",
+      "windows_detected": "Current system is Windows, opening:",
+      "system_not_supported": "Current system is %s - not supported"
+    },
+    "update": {
+      "short": "Update resource content",
+      "long": "Update the content of a resource. Supports escape characters: \\n \\t \\r \\\\ \\\" \\'.",
+      "error_fetch": "Failed to get resources: %w",
+      "not_found": "Resource not found: %s",
+      "audit_error": "Failed to record audit: %v"
+    },
+    "delete": {
+      "short": "Delete a resource",
+      "long": "Delete a resource (exact match).",
+      "error_fetch": "Failed to get resources: %w",
+      "not_found": "Resource not found: %s",
+      "error_delete": "Failed to delete resource: %w",
+      "success": "Deleted successfully!"
+    },
+    "tag": {
+      "short": "Add tags",
+      "long": "Add one or more tags to a resource for easier viewing and management.",
+      "error_fetch": "Failed to get resources: %w",
+      "not_found": "Resource not found",
+      "error_save": "Failed to save resource: %w",
+      "success": "Tags added successfully!"
+    },
+    "dtag": {
+      "short": "Delete a tag",
+      "long": "Delete a tag from a resource.",
+      "error_fetch": "Failed to get resources: %w",
+      "not_found": "Resource not found",
+      "error_save": "Failed to save resource: %w",
+      "success": "Tag deleted successfully!"
+    },
+    "rename": {
+      "short": "Rename a resource",
+      "long": "Change the name of a resource.",
+      "error_fetch": "Failed to get resources: %w",
+      "not_found": "Resource not found",
+      "error_delete_old": "Failed to delete old resource: %w",
+      "error_save_new": "Failed to save new resource: %w",
+      "success": "Renamed successfully!"
+    },
+    "config": {
+      "short": "Show configuration",
+      "long": "Show information about data file location. Use subcommand 'config ai' to configure AI functionality.",
+      "error_get_path": "Failed to get config path: %w",
+      "data_path_label": "Data file location:",
+      "config_path_label": "Config file location:",
+      "ai_config_label": "AI Configuration:"
+    },
+    "config_ai": {
+      "short": "Configure AI",
+      "long": "Interactively configure AI parameters (API Key, model URL, etc.).",
+      "title": "=== Configure AI ===",
+      "api_key_prompt": "API Key (required): ",
+      "api_key_current": "API Key [current: %s]: ",
+      "api_key_empty": "API Key cannot be empty",
+      "api_url_prompt": "API URL [%s]: ",
+      "model_prompt": "Model name [%s]: ",
+      "timeout_prompt": "Timeout (seconds) [%d]: ",
+      "error_save": "Failed to save AI config: %w",
+      "success": "Configuration saved!"
+    },
+    "version": {
+      "short": "Show version",
+      "long": "Show the current version of the tool."
+    },
+    "audit": {
+      "short": "View audit statistics",
+      "long": "View operation statistics for resources.",
+      "error_fetch": "Failed to get audit stats: %w",
+      "title": "=== Audit Statistics ===",
+      "total_ops": "Total operations: %d",
+      "by_operation": "By operation type:",
+      "by_resource": "By resource (top 10):"
+    },
+    "history": {
+      "short": "View operation history",
+      "long": "View detailed operation history. Supports pagination.\nOptional limit parameter specifies how many recent records to show (default 20).",
+      "invalid_limit": "Invalid limit parameter: %s",
+      "error_fetch": "Failed to get history: %w",
+      "no_history": "No history records",
+      "title": "=== Operation History ===",
+      "showing": "Showing %d recent records (total %d)"
+    },
+    "log": {
+      "short": "Work log",
+      "long": "Record, view, and manage work logs.",
+      "error_save": "Failed to save log: %w",
+      "success": "Recorded successfully! (%s)",
+      "error_query": "Failed to query logs: %w",
+      "no_records": "No log records",
+      "invalid_id": "Invalid log ID: %s",
+      "delete_success": "Deleted successfully!",
+      "flag_tag": "Tags (can be specified multiple times)",
+      "flag_list": "View logs",
+      "flag_date": "View specific date (YYYY-MM-DD)",
+      "flag_week": "View this week's logs",
+      "flag_month": "View this month's logs",
+      "flag_from": "Range start date (YYYY-MM-DD)",
+      "flag_to": "Range end date (YYYY-MM-DD)",
+      "flag_filter_tag": "Filter by tag (view mode)",
+      "flag_delete": "Delete log with specified ID"
+    },
+    "import": {
+      "short": "Import data",
+      "long": "Import data from CSV or JSON file into database.",
+      "success": "Import completed: %d added, %d skipped, %d failed",
+      "partial_failed": "Some records failed to import",
+      "open_failed": "Failed to open file %s: %w",
+      "unsupported_format": "Unsupported format: %s (supported: csv, json)",
+      "read_csv_failed": "Failed to read CSV: %w",
+      "csv_empty": "CSV file is empty or has header only",
+      "unsupported_type": "Unsupported import type: %s",
+      "csv_missing_columns": "CSV missing required columns (key, value)",
+      "get_existing_failed": "Failed to get existing resources: %w",
+      "parse_json_failed": "Failed to parse JSON: %w",
+      "invalid_id": "Invalid log ID: %s",
+      "delete_failed": "Failed to delete log: %w"
+    },
+    "export": {
+      "short": "Export data as CSV",
+      "long": "Export resources, audit records, or operation history as CSV.",
+      "error_create_file": "Failed to create file: %w",
+      "error_write_bom": "Failed to write BOM: %w",
+      "error_fetch_resources": "Failed to get resources: %w",
+      "error_fetch_audit": "Failed to get audit records: %w",
+      "error_fetch_history": "Failed to get history: %w",
+      "error_fetch_log": "Failed to get log records: %w",
+      "unsupported_type": "Unsupported export type: %s (supported: resources / audit / history / log)",
+      "error_write_csv": "Failed to write CSV: %w",
+      "success": "Exported successfully: %s (%d records)",
+      "flag_output": "Output file path (default: stdout)",
+      "flag_type": "Export type: resources / audit / history / log",
+      "flag_bom": "Write UTF-8 BOM (fix Excel Chinese encoding issues)"
+    },
+    "ai": {
+      "use": "ai <natural language input>",
+      "short": "Manage data with natural language",
+      "long": "Interact with AI assistant using natural language. One command replaces ten.",
+      "not_configured": "Please configure AI first: run 'ttl config ai'",
+      "thinking": "Thinking..."
+    },
+    "server": {
+      "short": "Start HTTP backend or manage users",
+      "long": "Start multi-tenant HTTP service (REST API + MCP HTTP endpoints), or manage users via user subcommands.",
+      "user": {
+        "short": "User management",
+        "long": "Manage multi-tenant users, including create, list, disable, enable, reset Key, delete, etc."
+      },
+      "user_add": {
+        "short": "Create user and issue API Key",
+        "success": "User created successfully!",
+        "warn_keep_key": "Please keep the API Key safe. It won't be shown again in full."
+      },
+      "user_list": {
+        "short": "List all users",
+        "no_users": "No users"
+      },
+      "user_disable": {
+        "short": "Disable user",
+        "success": "User %s disabled"
+      },
+      "user_enable": {
+        "short": "Enable user",
+        "success": "User %s enabled"
+      },
+      "user_reset_key": {
+        "short": "Regenerate user API Key (old key expires immediately)",
+        "success": "API Key for user %s has been reset",
+        "new_key": "  New API Key: %s"
+      },
+      "user_delete": {
+        "short": "Delete user (requires --confirm)",
+        "need_confirm": "Delete operation requires --confirm",
+        "warn_delete_data": "Warning: failed to delete user data directory: %v",
+        "success": "User %s deleted"
+      }
+    },
+    "sync": {
+      "short": "Sync local and remote data",
+      "long": "Compare differences between local and remote data and sync in specified direction.",
+      "need_cloud_url": "sync requires --cloud-url parameter",
+      "error_fetch_local": "Failed to get local resources: %w",
+      "error_connect_remote": "Failed to connect to remote service: %w",
+      "error_fetch_remote": "Failed to get remote resources: %w",
+      "dry_run_notice": "[dry-run] Showing differences only, no sync performed",
+      "choose_operation": "Please choose an operation:",
+      "option_pull": "  pull  - Sync all with remote as source",
+      "option_push": "  push  - Sync all with local as source",
+      "option_skip": "  skip  - Do nothing",
+      "skipped": "Skipped",
+      "invalid_choice": "Invalid choice: %s",
+      "invalid_direction": "Invalid sync direction: %s (supported: pull, push, auto)"
+    },
+    "mcp": {
+      "short": "Start local MCP Server (stdio transport)",
+      "long": "Start MCP Server, communicating via stdin/stdout with AI clients.",
+      "added_successfully": "Added successfully",
+      "key_already_exists": "Key already exists: ",
+      "failed_to_save": "Failed to save resource",
+      "failed_to_get": "Failed to get resources",
+      "no_resources": "No resources",
+      "all_resources": "All resources:\n",
+      "not_found": "Resource not found: ",
+      "resource_not_found": "Resource not found",
+      "failed_to_update": "Failed to update resource",
+      "failed_to_save_resource": "Failed to save resource",
+      "failed_to_get_resources": "Failed to get resources",
+      "at_least_one_tag_required": "At least one tag is required",
+      "tag_added_successfully": "Tags added successfully",
+      "tag_deleted_successfully": "Tag deleted successfully",
+      "rename_successfully": "Renamed successfully",
+      "not_found_resource": "Resource not found",
+      "failed_to_delete_old": "Failed to delete old resource",
+      "failed_to_save_new": "Failed to save new resource",
+      "resource_label": "Resource: ",
+      "tags_label": "Tags: ",
+      "deleted_successfully": "Deleted successfully",
+      "content_required": "Log content is required",
+      "failed_to_save_log": "Failed to save log",
+      "log_recorded": "Log recorded: %s%s (%s)",
+      "no_log_records": "No log records during period %s ~ %s",
+      "log_deleted_successfully": "Log deleted successfully",
+      "id_required": "Log ID cannot be empty",
+      "failed_to_delete_log": "Failed to delete log",
+      "unsupported_export_type": "Unsupported export type: %s (supported: resources, audit, history, log)",
+      "failed_to_get_audit": "Failed to get audit records",
+      "failed_to_get_history": "Failed to get history records",
+      "failed_to_get_log": "Failed to get log records",
+      "total_records": "Total %d records"
+    },
+    "encrypt": {
+      "short": "Enable data encryption",
+      "long": "Enable encryption for stored data. If there is existing data, use --migrate to encrypt it.",
+      "flag_migrate": "Encrypt existing data",
+      "flag_force": "Force enable encryption without prompt",
+      "enabled": "Encryption enabled",
+      "migrate_prompt": "Detected existing data, enable encryption? [Y/n]",
+      "cancelled": "Cancelled",
+      "key_generated": "Encryption key generated, will be auto-enabled on next startup",
+      "success": "Encryption enabled!",
+      "backup_prompt": "Please backup key file: %s"
+    },
+    "decrypt": {
+      "short": "Disable data encryption",
+      "long": "Disable encryption and decrypt all stored data.",
+      "flag_keep_key": "Keep key file after decryption",
+      "not_enabled": "Encryption not enabled",
+      "warning": "Warning: All data will be stored in plaintext after decryption",
+      "confirm_prompt": "Continue? [y/N]",
+      "data_decrypted": "Data decrypted",
+      "key_kept": "Key file kept",
+      "success": "Decryption complete! Key file deleted"
+    },
+    "key": {
+      "short": "Manage encryption key",
+      "long": "Manage encryption key (export, import, verify).",
+      "export_success": "Key exported to: %s",
+      "import_success": "Key imported",
+      "verify_success": "Key file is valid"
+    },
+    "migrate": {
+      "short": "Data migration tool",
+      "long": "Migrate data from one storage to another\nSupported directions: local->cloud, cloud->local, local->local",
+      "invalid_source": "Source storage type must be local or cloud",
+      "invalid_target": "Target storage type must be local or cloud",
+      "same_type": "Source and target storage types cannot be the same",
+      "need_source_config": "Source cloud storage requires --source-url and --source-key parameters",
+      "flag_source_url": "Source cloud storage API URL",
+      "flag_source_key": "Source cloud storage API key",
+      "flag_source_timeout": "Source cloud storage timeout (seconds)"
+    }
+  },
+  "root": {
+    "short": "Personal data management system",
+    "long": "Personal data management system for managing resources and tags.\nSupports operations like add, get, delete resources, and manage tags.",
+    "flag_debug": "Enable debug mode",
+    "flag_storage": "Storage type: local, cloud, sync",
+    "flag_cloud_url": "Cloud storage API URL",
+    "flag_cloud_key": "Cloud storage API key",
+    "flag_cloud_timeout": "Cloud storage timeout (seconds)",
+    "flag_conf": "Specify config file path (default: ~/.ttl/ttl.ini)"
+  },
+  "error": {
+    "init_db": "Failed to initialize database: %w",
+    "record_history": "Failed to record command history: %v",
+    "close_db": "Failed to close database: %v",
+    "get_history": "Failed to get command history: %v",
+    "db": {
+      "create_dir": "Failed to create directory: %w",
+      "open_db": "Failed to open database: %w",
+      "bucket_not_exist": "Resource bucket does not exist",
+      "parse_key": "Failed to parse key: %w",
+      "parse_value": "Failed to parse value: %w",
+      "serialize_key": "Failed to serialize key: %w",
+      "serialize_value": "Failed to serialize value: %w",
+      "serialize_request": "Failed to serialize request body: %w",
+      "create_request": "Failed to create request: %w",
+      "request_failed": "Request failed: %w",
+      "read_response": "Failed to read response: %w",
+      "parse_response": "Failed to parse response: %w, body: %s",
+      "api_error": "API error: %s",
+      "parse_resources": "Failed to parse resource list: %w",
+      "serialize_audit": "Failed to serialize audit record: %w",
+      "parse_audit": "Failed to parse audit record: %w",
+      "serialize_history": "Failed to serialize history record: %w",
+      "serialize_log": "Failed to serialize log record: %w",
+      "parse_log": "Failed to parse log record: %w",
+      "log_not_found": "Log record not found"
+    },
+    "storage": {
+      "need_cloud_config": "Cloud storage requires API URL and key",
+      "unsupported_type": "Unsupported storage type: %s",
+      "not_initialized": "Storage not initialized",
+      "migrate": {
+        "title": "Starting data migration: %s -> %s",
+        "need_source_config": "Source cloud storage requires API URL and key",
+        "unsupported_source": "Unsupported source storage type: %s",
+        "init_source_failed": "Failed to initialize source storage: %w",
+        "need_target_config": "Target cloud storage requires API URL and key",
+        "unsupported_target": "Unsupported target storage type: %s",
+        "init_target_failed": "Failed to initialize target storage: %w",
+        "reading_source": "Reading from source storage...",
+        "read_failed": "Failed to read source data: %w",
+        "found_resources": "Found %d resources to migrate",
+        "migrate_failed": "Failed to migrate resource [%s]: %v",
+        "migrate_success": "Successfully migrated resource: %s",
+        "complete": "Migration complete! Success: %d, Failed: %d",
+        "partial_failed": "Some resources failed to migrate"
+      }
+    },
+    "tenant_storage": {
+      "create_user_dir": "Failed to create user data directory: %w",
+      "init_user_db": "Failed to initialize database for user %s: %w",
+      "close_user_storage": "Failed to close storage for user %s: %w"
+    },
+    "user_store": {
+      "read_users": "Failed to read users.json: %w",
+      "parse_users": "Failed to parse users.json: %w",
+      "serialize_users": "Failed to serialize users.json: %w",
+      "invalid_id": "Invalid ID, only [a-z0-9_-] allowed, max 32 characters",
+      "empty_name": "name cannot be empty",
+      "user_exists": "User %s already exists",
+      "generate_key": "Failed to generate API Key: %w",
+      "user_not_found": "User %s not found"
+    },
+    "api": {
+      "unauthorized_invalid_key": "Unauthorized: Invalid API Key",
+      "unauthorized_missing_key": "Unauthorized: Missing API Key",
+      "unauthorized_user_disabled": "Unauthorized: User is disabled",
+      "get_user_storage": "Failed to get user storage: %s"
+    },
+    "conf": {
+      "get_user_dir": "Failed to get user directory: %w",
+      "create_config_dir": "Failed to create config directory: %w",
+      "config_not_exist": "Config file does not exist: %s",
+      "load_config": "Failed to load config file: %w",
+      "parse_config": "Failed to parse config file: %w",
+      "parse_ai_config": "Failed to parse AI config: %w",
+      "save_default_config": "Failed to save default config: %w"
+    }
+  },
+  "ai": {
+    "call_failed": "AI call failed: %w",
+    "max_steps": "Operation completed (max reasoning steps reached)",
+    "truncated": "...(result too long, truncated)",
+    "unknown_action": "Unknown action: %s",
+    "exec_failed": "Execution failed: %s",
+    "no_resources": "No resources stored currently",
+    "not_found_keyword": "No resources found matching \"%s\"",
+    "open_failed": "Failed to open: %w",
+    "open_manually": "Please open manually: %s",
+    "delete_confirm": "About to delete: %s\nConfirm deletion with: ttl del %s",
+    "log_empty": "No log records in period %s ~ %s",
+    "log_id_invalid": "Log ID format is incorrect, should be a number",
+    "log_deleted": "Log deleted successfully",
+    "export_resources": "%d resources available for export. Use `ttl export --type resources` to export as CSV",
+    "export_audit": "%d audit records available for export. Use `ttl export --type audit` to export as CSV",
+    "export_history": "%d history records available for export. Use `ttl export --type history` to export as CSV",
+    "export_log": "%d work log records available for export. Use `ttl export --type log` to export as CSV",
+    "export_unsupported": "Unsupported export type: %s. Supported types: resources, audit, history, log"
+  },
+  "sync": {
+    "dry_run_delete_local": "[dry-run] Delete local resource: %s",
+    "delete_local_failed": "Failed to delete local resource %s: %w",
+    "deleted_local": "Deleted local resource: %s",
+    "dry_run_add_local": "[dry-run] Add local resource: %s",
+    "add_local_failed": "Failed to add local resource %s: %w",
+    "added_local": "Added local resource: %s",
+    "dry_run_update_local": "[dry-run] Update local resource: %s",
+    "update_local_failed": "Failed to update local resource %s: %w",
+    "updated_local": "Updated local resource: %s",
+    "dry_run_push": "[dry-run] Push to remote: %s",
+    "push_failed": "Failed to push resource %s: %w",
+    "pushed": "Pushed to remote: %s",
+    "dry_run_delete_remote": "[dry-run] Delete remote resource: %s",
+    "delete_remote_failed": "Failed to delete remote resource %s: %w",
+    "deleted_remote": "Deleted remote resource: %s",
+    "dry_run_update_remote": "[dry-run] Update remote resource: %s",
+    "update_remote_failed": "Failed to update remote resource %s: %w",
+    "updated_remote": "Updated remote resource: %s",
+    "remote_label": "Remote: %s",
+    "local_only": "Only in local (%d):",
+    "remote_only": "Only in remote (%d):",
+    "conflicts": "Content differs (%d):"
+  }
+}

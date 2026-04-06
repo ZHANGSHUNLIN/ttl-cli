@@ -1,0 +1,461 @@
+{
+  "language": "日本語",
+  "version": "1.0.0",
+  "command": {
+    "add": {
+      "short": "リソースを追加",
+      "long": "名前と内容を指定してリソースを追加します。名前にスペースが含まれる場合は引用符を使用してください。エスケープ文字をサポート: \\n \\t \\r \\\\ \\\" \\'。",
+      "success": "追加に成功しました！",
+      "duplicate": "キーは既に存在します: %s",
+      "error_fetch": "リソースの取得に失敗しました: %w",
+      "error_save": "リソースの保存に失敗しました: %w",
+      "audit_error": "監査の記録に失敗しました: %v",
+      "flag_tag": "タグ（複数回指定可能、例: -t ops -t dev）"
+    },
+    "init": {
+      "short": "シェル補完を初期化",
+      "long": "ttlのシェル自動補完を初期化します。シェル（bash/zsh/fish）を検出し、自動的に設定します。",
+      "detected_shell": "検出されたシェル: %s",
+      "unsupported_shell": "このシェルはシェル自動補完をサポートしていません。",
+      "manual_setup": "シェルの補完を手動で設定してください。",
+      "error_home_dir": "ホームディレクトリの取得に失敗しました: %w",
+      "error_create_dir": "補完ディレクトリの作成に失敗しました: %w",
+      "error_generate": "補完スクリプトの生成に失敗しました: %w",
+      "error_setup_rc": "シェル設定のセットアップに失敗しました: %w",
+      "script_created": "補完スクリプトを作成しました: %s",
+      "success": "初期化が完了しました！",
+      "script_path": "  スクリプト: %s",
+      "rc_configured": "  設定済み: %s",
+      "reload_hint": "  変更を適用するには、以下のコマンドを実行してください:",
+      "manual_source": "  シェル設定ファイルでスクリプトを読み込んでください",
+      "already_configured": "  シェル補完は既に設定されています。"
+    },
+    "get": {
+      "short": "リソースを取得",
+      "long": "名前またはタグでリソースを取得して表示します。",
+      "error_fetch": "リソースの取得に失敗しました: %w",
+      "no_filter_notice": "[注] フィルターが指定されていません。すべてのリソースキーを表示します。ヘルプは 'ttl -h' または 'ttl --help' を使用してください。",
+      "resource_label": "リソース:",
+      "tags_label": "タグ:",
+      "not_found": "リソースが見つかりません: %s",
+      "audit_error": "監査の記録に失敗しました: %v",
+      "multiple_matches": "複数のリソースが見つかりました。番号を入力して選択してください:",
+      "tag_hint": "(タグ: %s)",
+      "invalid_input": "無効な入力: %w",
+      "invalid_choice": "無効な選択"
+    },
+    "open": {
+      "short": "リソースを開く",
+      "long": "可能であればリソースを開き、そうでない場合はエラーメッセージを表示します。",
+      "error_fetch": "リソースの取得に失敗しました: %w",
+      "macos_detected": "現在のシステムは macOS です",
+      "linux_not_supported": "現在のシステムは Linux です - サポートされていません",
+      "windows_detected": "現在のシステムは Windows です。次を開いています:",
+      "system_not_supported": "現在のシステムは %s です - サポートされていません"
+    },
+    "update": {
+      "short": "リソースの内容を更新",
+      "long": "リソースの内容を更新します。エスケープ文字をサポート: \\n \\t \\r \\\\ \\\" \\'。",
+      "error_fetch": "リソースの取得に失敗しました: %w",
+      "not_found": "リソースが見つかりません: %s",
+      "audit_error": "監査の記録に失敗しました: %v"
+    },
+    "delete": {
+      "short": "リソースを削除",
+      "long": "リソースを削除します（完全一致）。",
+      "error_fetch": "リソースの取得に失敗しました: %w",
+      "not_found": "リソースが見つかりません: %s",
+      "error_delete": "リソースの削除に失敗しました: %w",
+      "success": "削除に成功しました！"
+    },
+    "tag": {
+      "short": "タグを追加",
+      "long": "リソースに1つ以上のタグを追加して、表示と管理を容易にします。",
+      "error_fetch": "リソースの取得に失敗しました: %w",
+      "not_found": "リソースが見つかりません",
+      "error_save": "リソースの保存に失敗しました: %w",
+      "success": "タグの追加に成功しました！"
+    },
+    "dtag": {
+      "short": "タグを削除",
+      "long": "リソースからタグを削除します。",
+      "error_fetch": "リソースの取得に失敗しました: %w",
+      "not_found": "リソースが見つかりません",
+      "error_save": "リソースの保存に失敗しました: %w",
+      "success": "タグの削除に成功しました！"
+    },
+    "rename": {
+      "short": "リソースの名前を変更",
+      "long": "リソースの名前を変更します。",
+      "error_fetch": "リソースの取得に失敗しました: %w",
+      "not_found": "リソースが見つかりません",
+      "error_delete_old": "古いリソースの削除に失敗しました: %w",
+      "error_save_new": "新しいリソースの保存に失敗しました: %w",
+      "success": "名前の変更に成功しました！"
+    },
+    "config": {
+      "short": "設定を表示",
+      "long": "データファイルの場所に関する情報を表示します。AI機能の設定にはサブコマンド 'config ai' を使用してください。",
+      "error_get_path": "設定パスの取得に失敗しました: %w",
+      "data_path_label": "データファイルの場所:",
+      "config_path_label": "設定ファイルの場所:",
+      "ai_config_label": "AI設定:"
+    },
+    "config_ai": {
+      "short": "AIを設定",
+      "long": "AIパラメータ（APIキー、モデルURLなど）を対話的に設定します。",
+      "title": "=== AI設定 ===",
+      "api_key_prompt": "APIキー（必須）: ",
+      "api_key_current": "APIキー [現在: %s]: ",
+      "api_key_empty": "APIキーを空にすることはできません",
+      "api_url_prompt": "API URL [%s]: ",
+      "model_prompt": "モデル名 [%s]: ",
+      "timeout_prompt": "タイムアウト（秒）[%d]: ",
+      "error_save": "AI設定の保存に失敗しました: %w",
+      "success": "設定を保存しました！"
+    },
+    "version": {
+      "short": "バージョンを表示",
+      "long": "ツールの現在のバージョンを表示します。"
+    },
+    "audit": {
+      "short": "監査統計を表示",
+      "long": "リソースの操作統計を表示します。",
+      "error_fetch": "監査統計の取得に失敗しました: %w",
+      "title": "=== 監査統計 ===",
+      "total_ops": "総操作数: %d",
+      "by_operation": "操作タイプ別:",
+      "by_resource": "リソース別（トップ10）:"
+    },
+    "history": {
+      "short": "操作履歴を表示",
+      "long": "詳細な操作履歴を表示します。ページネーションをサポートします。\nオプションのlimitパラメータは、表示する最近のレコード数を指定します（デフォルト20）。",
+      "invalid_limit": "無効なlimitパラメータ: %s",
+      "error_fetch": "履歴の取得に失敗しました: %w",
+      "no_history": "履歴レコードがありません",
+      "title": "=== 操作履歴 ===",
+      "showing": "%d件の最近のレコードを表示中（総数%d）"
+    },
+    "log": {
+      "short": "作業ログ",
+      "long": "作業ログを記録、表示、管理します。",
+      "error_save": "ログの保存に失敗しました: %w",
+      "success": "記録に成功しました！(%s)",
+      "error_query": "ログのクエリに失敗しました: %w",
+      "no_records": "ログレコードがありません",
+      "invalid_id": "無効なログID: %s",
+      "delete_success": "削除に成功しました！",
+      "flag_tag": "タグ（複数回指定可能）",
+      "flag_list": "ログを表示",
+      "flag_date": "特定の日付を表示（YYYY-MM-DD）",
+      "flag_week": "今週のログを表示",
+      "flag_month": "今月のログを表示",
+      "flag_from": "範囲開始日（YYYY-MM-DD）",
+      "flag_to": "範囲終了日（YYYY-MM-DD）",
+      "flag_filter_tag": "タグでフィルタ（表示モード）",
+      "flag_delete": "指定されたIDのログを削除"
+    },
+    "import": {
+      "short": "データをインポート",
+      "long": "CSVまたはJSONファイルからデータベースにデータをインポートします。",
+      "success": "インポート完了: %d追加、%dスキップ、%d失敗",
+      "partial_failed": "一部のレコードのインポートに失敗しました",
+      "open_failed": "ファイルのオープンに失敗しました %s: %w",
+      "unsupported_format": "サポートされていない形式: %s（サポート: csv, json）",
+      "read_csv_failed": "CSVの読み取りに失敗しました: %w",
+      "csv_empty": "CSVファイルが空かヘッダーのみです",
+      "unsupported_type": "サポートされていないインポートタイプ: %s",
+      "csv_missing_columns": "CSVに必要な列がありません（key, value）",
+      "get_existing_failed": "既存のリソースの取得に失敗しました: %w",
+      "parse_json_failed": "JSONの解析に失敗しました: %w",
+      "invalid_id": "無効なログID: %s",
+      "delete_failed": "ログの削除に失敗しました: %w"
+    },
+    "export": {
+      "short": "データをCSVとしてエクスポート",
+      "long": "リソース、監査レコード、または操作履歴をCSVとしてエクスポートします。",
+      "error_create_file": "ファイルの作成に失敗しました: %w",
+      "error_write_bom": "BOMの書き込みに失敗しました: %w",
+      "error_fetch_resources": "リソースの取得に失敗しました: %w",
+      "error_fetch_audit": "監査レコードの取得に失敗しました: %w",
+      "error_fetch_history": "履歴の取得に失敗しました: %w",
+      "error_fetch_log": "ログレコードの取得に失敗しました: %w",
+      "unsupported_type": "サポートされていないエクスポートタイプ: %s（サポート: resources / audit / history / log）",
+      "error_write_csv": "CSVの書き込みに失敗しました: %w",
+      "success": "エクスポートに成功しました: %s（%dレコード）",
+      "flag_output": "出力ファイルパス（デフォルト: stdout）",
+      "flag_type": "エクスポートタイプ: resources / audit / history / log",
+      "flag_bom": "UTF-8 BOMを書き込む（Excelの文字化け問題を修正）"
+    },
+    "ai": {
+      "use": "ai <自然言語入力>",
+      "short": "自然言語でデータを管理",
+      "long": "自然言語でAIアシスタントと対話します。1つのコマンドで10つの操作を。",
+      "not_configured": "まずAIを設定してください: 'ttl config ai' を実行",
+      "thinking": "考えています..."
+    },
+    "server": {
+      "short": "HTTPバックエンドを開始またはユーザーを管理",
+      "long": "マルチテナントHTTPサービス（REST API + MCP HTTPエンドポイント）を開始するか、ユーザーサブコマンドでユーザーを管理します。",
+      "user": {
+        "short": "ユーザー管理",
+        "long": "マルチテナントユーザーを管理します。作成、一覧表示、無効化、有効化、キーのリセット、削除などが含まれます。"
+      },
+      "user_add": {
+        "short": "ユーザーを作成してAPIキーを発行",
+        "success": "ユーザーの作成に成功しました！",
+        "warn_keep_key": "APIキーを安全に保管してください。完全には再表示されません。"
+      },
+      "user_list": {
+        "short": "すべてのユーザーを一覧表示",
+        "no_users": "ユーザーがいません"
+      },
+      "user_disable": {
+        "short": "ユーザーを無効化",
+        "success": "ユーザー %s を無効にしました"
+      },
+      "user_enable": {
+        "short": "ユーザーを有効化",
+        "success": "ユーザー %s を有効にしました"
+      },
+      "user_reset_key": {
+        "short": "ユーザーAPIキーを再生成（古いキーは直ちに期限切れ）",
+        "success": "ユーザー %s のAPIキーがリセットされました",
+        "new_key": "  新しいAPIキー: %s"
+      },
+      "user_delete": {
+        "short": "ユーザーを削除（--confirmが必要）",
+        "need_confirm": "削除操作には --confirm が必要です",
+        "warn_delete_data": "警告: ユーザーデータディレクトリの削除に失敗しました: %v",
+        "success": "ユーザー %s を削除しました"
+      }
+    },
+    "sync": {
+      "short": "ローカルとリモートのデータを同期",
+      "long": "ローカルとリモートのデータの違いを比較し、指定された方向で同期します。",
+      "need_cloud_url": "syncには --cloud-urlパラメータが必要です",
+      "error_fetch_local": "ローカルリソースの取得に失敗しました: %w",
+      "error_connect_remote": "リモートサービスへの接続に失敗しました: %w",
+      "error_fetch_remote": "リモートリソースの取得に失敗しました: %w",
+      "dry_run_notice": "[dry-run] 差分のみ表示、同期は実行しません",
+      "choose_operation": "操作を選択してください:",
+      "option_pull": "  pull  - リモートをソースとしてすべてを同期",
+      "option_push": "  push  - ローカルをソースとしてすべてを同期",
+      "option_skip": "  skip  - 何もしない",
+      "skipped": "スキップしました",
+      "invalid_choice": "無効な選択: %s",
+      "invalid_direction": "無効な同期方向: %s（サポート: pull, push, auto）"
+    },
+    "mcp": {
+      "short": "ローカルMCPサーバーを開始（stdioトランスポート）",
+      "long": "MCPサーバーを開始し、stdin/stdoutを介してAIクライアントと通信します。",
+      "added_successfully": "追加に成功しました",
+      "key_already_exists": "キーは既に存在します: ",
+      "failed_to_save": "リソースの保存に失敗しました",
+      "failed_to_get": "リソースの取得に失敗しました",
+      "no_resources": "リソースがありません",
+      "all_resources": "すべてのリソース:\n",
+      "not_found": "リソースが見つかりません: ",
+      "resource_not_found": "リソースが見つかりません",
+      "failed_to_update": "リソースの更新に失敗しました",
+      "failed_to_save_resource": "リソースの保存に失敗しました",
+      "failed_to_get_resources": "リソースの取得に失敗しました",
+      "at_least_one_tag_required": "少なくとも1つのタグが必要です",
+      "tag_added_successfully": "タグの追加に成功しました",
+      "tag_deleted_successfully": "タグの削除に成功しました",
+      "rename_successfully": "名前の変更に成功しました",
+      "not_found_resource": "リソースが見つかりません",
+      "failed_to_delete_old": "古いリソースの削除に失敗しました",
+      "failed_to_save_new": "新しいリソースの保存に失敗しました",
+      "resource_label": "リソース: ",
+      "tags_label": "タグ: ",
+      "deleted_successfully": "削除に成功しました",
+      "content_required": "ログ内容は必須です",
+      "failed_to_save_log": "ログの保存に失敗しました",
+      "log_recorded": "ログを記録しました: %s%s (%s)",
+      "no_log_records": "期間 %s ~ %s 中にログレコードがありません",
+      "log_deleted_successfully": "ログの削除に成功しました",
+      "id_required": "ログIDを空にすることはできません",
+      "failed_to_delete_log": "ログの削除に失敗しました",
+      "unsupported_export_type": "サポートされていないエクスポートタイプ: %s（サポート: resources, audit, history, log）",
+      "failed_to_get_audit": "監査レコードの取得に失敗しました",
+      "failed_to_get_history": "履歴レコードの取得に失敗しました",
+      "failed_to_get_log": "ログレコードの取得に失敗しました",
+      "total_records": "合計%dレコード"
+    },
+    "encrypt": {
+      "short": "データ暗号化を有効化",
+      "long": "保存されたデータの暗号化を有効にします。既存のデータがある場合は、--migrateを使用して暗号化します。",
+      "flag_migrate": "既存のデータを暗号化",
+      "flag_force": "プロンプトなしで暗号化を強制的に有効化",
+      "enabled": "暗号化が有効になりました",
+      "migrate_prompt": "既存のデータが検出されました。暗号化を有効にしますか？[Y/n]",
+      "cancelled": "キャンセルしました",
+      "key_generated": "暗号化キーが生成されました。次回の起動時に自動的に有効になります",
+      "success": "暗号化が有効になりました！",
+      "backup_prompt": "キーファイルをバックアップしてください: %s"
+    },
+    "decrypt": {
+      "short": "データ暗号化を無効化",
+      "long": "暗号化を無効にし、保存されているすべてのデータを復号化します。",
+      "flag_keep_key": "復号化後にキーファイルを保持",
+      "not_enabled": "暗号化が有効になっていません",
+      "warning": "警告: 復号化後、すべてのデータがプレーンテキストで保存されます",
+      "confirm_prompt": "続行しますか？[y/N]",
+      "data_decrypted": "データを復号化しました",
+      "key_kept": "キーファイルを保持しました",
+      "success": "復号化が完了しました！キーファイルを削除しました"
+    },
+    "key": {
+      "short": "暗号化キーを管理",
+      "long": "暗号化キーを管理します（エクスポート、インポート、検証）。",
+      "export_success": "キーをエクスポートしました: %s",
+      "import_success": "キーをインポートしました",
+      "verify_success": "キーファイルは有効です"
+    },
+    "migrate": {
+      "short": "データ移行ツール",
+      "long": "あるストレージから別のストレージにデータを移行します\nサポートされる方向: local->cloud, cloud->local, local->local",
+      "invalid_source": "ソースストレージタイプはlocalまたはcloudである必要があります",
+      "invalid_target": "ターゲットストレージタイプはlocalまたはcloudである必要があります",
+      "same_type": "ソースとターゲットのストレージタイプを同じにすることはできません",
+      "need_source_config": "ソースクラウドストレージには --source-url と --source-key パラメータが必要です",
+      "flag_source_url": "ソースクラウドストレージAPI URL",
+      "flag_source_key": "ソースクラウドストレージAPIキー",
+      "flag_source_timeout": "ソースクラウドストレージタイムアウト（秒）"
+    }
+  },
+  "root": {
+    "short": "個人データ管理システム",
+    "long": "リソースとタグを管理するための個人データ管理システム。\nリソースの追加、取得、削除、タグの管理などの操作をサポートします。",
+    "flag_debug": "デバッグモードを有効化",
+    "flag_storage": "ストレージタイプ: local, cloud, sync",
+    "flag_cloud_url": "クラウドストレージAPI URL",
+    "flag_cloud_key": "クラウドストレージAPIキー",
+    "flag_cloud_timeout": "クラウドストレージタイムアウト（秒）",
+    "flag_conf": "設定ファイルパスを指定（デフォルト: ~/.ttl/ttl.ini）"
+  },
+  "error": {
+    "init_db": "データベースの初期化に失敗しました: %w",
+    "record_history": "コマンド履歴の記録に失敗しました: %v",
+    "close_db": "データベースのクローズに失敗しました: %v",
+    "get_history": "コマンド履歴の取得に失敗しました: %v",
+    "db": {
+      "create_dir": "ディレクトリの作成に失敗しました: %w",
+      "open_db": "データベースのオープンに失敗しました: %w",
+      "bucket_not_exist": "リソースバケットが存在しません",
+      "parse_key": "キーの解析に失敗しました: %w",
+      "parse_value": "値の解析に失敗しました: %w",
+      "serialize_key": "キーのシリアライズに失敗しました: %w",
+      "serialize_value": "値のシリアライズに失敗しました: %w",
+      "serialize_request": "リクエストボディのシリアライズに失敗しました: %w",
+      "create_request": "リクエストの作成に失敗しました: %w",
+      "request_failed": "リクエストに失敗しました: %w",
+      "read_response": "レスポンスの読み取りに失敗しました: %w",
+      "parse_response": "レスポンスの解析に失敗しました: %w, body: %s",
+      "api_error": "APIエラー: %s",
+      "parse_resources": "リソースリストの解析に失敗しました: %w",
+      "serialize_audit": "監査レコードのシリアライズに失敗しました: %w",
+      "parse_audit": "監査レコードの解析に失敗しました: %w",
+      "serialize_history": "履歴レコードのシリアライズに失敗しました: %w",
+      "serialize_log": "ログレコードのシリアライズに失敗しました: %w",
+      "parse_log": "ログレコードの解析に失敗しました: %w",
+      "log_not_found": "ログレコードが見つかりません"
+    },
+    "storage": {
+      "need_cloud_config": "クラウドストレージにはAPI URLとキーが必要です",
+      "unsupported_type": "サポートされていないストレージタイプ: %s",
+      "not_initialized": "ストレージが初期化されていません",
+      "migrate": {
+        "title": "データ移行を開始: %s -> %s",
+        "need_source_config": "ソースクラウドストレージにはAPI URLとキーが必要です",
+        "unsupported_source": "サポートされていないソースストレージタイプ: %s",
+        "init_source_failed": "ソースストレージの初期化に失敗しました: %w",
+        "need_target_config": "ターゲットクラウドストレージにはAPI URLとキーが必要です",
+        "unsupported_target": "サポートされていないターゲットストレージタイプ: %s",
+        "init_target_failed": "ターゲットストレージの初期化に失敗しました: %w",
+        "reading_source": "ソースストレージから読み込み中...",
+        "read_failed": "ソースデータの読み込みに失敗しました: %w",
+        "found_resources": "%d個のリソースが移行対象として見つかりました",
+        "migrate_failed": "リソースの移行に失敗しました [%s]: %v",
+        "migrate_success": "リソースの移行に成功しました: %s",
+        "complete": "移行完了！成功: %d、失敗: %d",
+        "partial_failed": "一部のリソースの移行に失敗しました"
+      }
+    },
+    "tenant_storage": {
+      "create_user_dir": "ユーザーデータディレクトリの作成に失敗しました: %w",
+      "init_user_db": "ユーザー %s のデータベースの初期化に失敗しました: %w",
+      "close_user_storage": "ユーザー %s のストレージのクローズに失敗しました: %w"
+    },
+    "user_store": {
+      "read_users": "users.jsonの読み取りに失敗しました: %w",
+      "parse_users": "users.jsonの解析に失敗しました: %w",
+      "serialize_users": "users.jsonのシリアライズに失敗しました: %w",
+      "invalid_id": "無効なID、[a-z0-9_-]のみ使用可能、最大32文字",
+      "empty_name": "名前を空にすることはできません",
+      "user_exists": "ユーザー %s は既に存在します",
+      "generate_key": "APIキーの生成に失敗しました: %w",
+      "user_not_found": "ユーザー %s が見つかりません"
+    },
+    "api": {
+      "unauthorized_invalid_key": "認証されていません: 無効なAPIキー",
+      "unauthorized_missing_key": "認証されていません: APIキーがありません",
+      "unauthorized_user_disabled": "認証されていません: ユーザーが無効になっています",
+      "get_user_storage": "ユーザーストレージの取得に失敗しました: %s"
+    },
+    "conf": {
+      "get_user_dir": "ユーザーディレクトリの取得に失敗しました: %w",
+      "create_config_dir": "設定ディレクトリの作成に失敗しました: %w",
+      "config_not_exist": "設定ファイルが存在しません: %s",
+      "load_config": "設定ファイルの読み込みに失敗しました: %w",
+      "parse_config": "設定ファイルの解析に失敗しました: %w",
+      "parse_ai_config": "AI設定の解析に失敗しました: %w",
+      "save_default_config": "デフォルト設定の保存に失敗しました: %w"
+    }
+  },
+  "ai": {
+    "call_failed": "AI呼び出しに失敗しました: %w",
+    "max_steps": "操作が完了しました（最大推論ステップに到達）",
+    "truncated": "...（結果が長すぎます、切り詰められました）",
+    "unknown_action": "不明なアクション: %s",
+    "exec_failed": "実行に失敗しました: %s",
+    "no_resources": "現在保存されているリソースがありません",
+    "not_found_keyword": "\"%s\"に一致するリソースが見つかりません",
+    "open_failed": "オープンに失敗しました: %w",
+    "open_manually": "手動で開いてください: %s",
+    "delete_confirm": "次を削除しようとしています: %s\n次で削除を確認してください: ttl del %s",
+    "log_empty": "期間 %s ~ %s 中にログレコードがありません",
+    "log_id_invalid": "ログIDの形式が正しくありません。数字である必要があります",
+    "log_deleted": "ログの削除に成功しました",
+    "export_resources": "%d個のリソースがエクスポート可能です。`ttl export --type resources` を使用してCSVとしてエクスポートしてください",
+    "export_audit": "%d個の監査レコードがエクスポート可能です。`ttl export --type audit` を使用してCSVとしてエクスポートしてください",
+    "export_history": "%d個の履歴レコードがエクスポート可能です。`ttl export --type history` を使用してCSVとしてエクスポートしてください",
+    "export_log": "%d個の作業ログレコードがエクスポート可能です。`ttl export --type log` を使用してCSVとしてエクスポートしてください",
+    "export_unsupported": "サポートされていないエクスポートタイプ: %s。サポートされるタイプ: resources, audit, history, log"
+  },
+  "sync": {
+    "dry_run_delete_local": "[dry-run] ローカルリソースを削除: %s",
+    "delete_local_failed": "ローカルリソース %s の削除に失敗しました: %w",
+    "deleted_local": "ローカルリソースを削除しました: %s",
+    "dry_run_add_local": "[dry-run] ローカルリソースを追加: %s",
+    "add_local_failed": "ローカルリソース %s の追加に失敗しました: %w",
+    "added_local": "ローカルリソースを追加しました: %s",
+    "dry_run_update_local": "[dry-run] ローカルリソースを更新: %s",
+    "update_local_failed": "ローカルリソース %s の更新に失敗しました: %w",
+    "updated_local": "ローカルリソースを更新しました: %s",
+    "dry_run_push": "[dry-run] リモートにプッシュ: %s",
+    "push_failed": "リソース %s のプッシュに失敗しました: %w",
+    "pushed": "リモートにプッシュしました: %s",
+    "dry_run_delete_remote": "[dry-run] リモートリソースを削除: %s",
+    "delete_remote_failed": "リモートリソース %s の削除に失敗しました: %w",
+    "deleted_remote": "リモートリソースを削除しました: %s",
+    "dry_run_update_remote": "[dry-run] リモートリソースを更新: %s",
+    "update_remote_failed": "リモートリソース %s の更新に失敗しました: %w",
+    "updated_remote": "リモートリソースを更新しました: %s",
+    "remote_label": "リモート: %s",
+    "local_only": "ローカルのみ(%d):",
+    "remote_only": "リモートのみ(%d):",
+    "conflicts": "内容が異なります(%d):"
+  }
+}

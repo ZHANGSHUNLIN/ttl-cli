@@ -1,0 +1,102 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  GO_VERSION: '1.23'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, darwin, windows]
+        goarch: [amd64, arm64]
+        exclude:
+          - goos: windows
+            goarch: arm64
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          OUTPUT_NAME="ttl-cli"
+          if [ "$GOOS" = "windows" ]; then
+            OUTPUT_NAME="${OUTPUT_NAME}.exe"
+          fi
+          go build -ldflags="-s -w -X main.version=${VERSION}" -o "$OUTPUT_NAME" .
+
+          # Create archive
+          ARCHIVE_NAME="ttl-cli-${VERSION}-${GOOS}-${GOARCH}"
+          if [ "$GOOS" = "linux" ]; then
+            tar czf "${ARCHIVE_NAME}.tar.gz" "$OUTPUT_NAME"
+            echo "ARCHIVE=${ARCHIVE_NAME}.tar.gz" >> $GITHUB_ENV
+          elif [ "$GOOS" = "darwin" ]; then
+            tar czf "${ARCHIVE_NAME}.tar.gz" "$OUTPUT_NAME"
+            echo "ARCHIVE=${ARCHIVE_NAME}.tar.gz" >> $GITHUB_ENV
+          else
+            zip "${ARCHIVE_NAME}.zip" "$OUTPUT_NAME"
+            echo "ARCHIVE=${ARCHIVE_NAME}.zip" >> $GITHUB_ENV
+          fi
+
+          # Create checksums
+          if [ "$GOOS" = "windows" ]; then
+            sha256sum "${ARCHIVE_NAME}.zip" > "${ARCHIVE_NAME}.sha256"
+          else
+            sha256sum "${ARCHIVE_NAME}.tar.gz" > "${ARCHIVE_NAME}.sha256"
+          fi
+
+      - name: Generate Release Notes
+        id: release_notes
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$PREV_TAG" ]; then
+            echo "## What's Changed" > release_notes.md
+            echo "" >> release_notes.md
+            git log ${PREV_TAG}..HEAD --pretty=format:"- %s" >> release_notes.md
+          else
+            echo "## Initial Release" > release_notes.md
+            echo "" >> release_notes.md
+            echo "First release of ttl-cli - personal data management system." >> release_notes.md
+          fi
+          echo "EOF_RELEASE_NOTS<<EOF" >> $GITHUB_OUTPUT
+          cat release_notes.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body: ${{ steps.release_notes.outputs.EOF_RELEASE_NOTS }}
+          files: |
+            ${{ env.ARCHIVE }}
+            ${{ env.ARCHIVE }}.sha256
+          draft: false
+          prerelease: false
+          generate_release_notes: false
