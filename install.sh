@@ -35,12 +35,27 @@ detect_arch() {
 
 get_latest_version() {
     local version
-    version=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" | \
+    local err
+
+    # First attempt
+    version=$(curl -fsSL --max-time 10 "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null | \
         grep '"tag_name"' | \
         sed -E 's/.*"([^"]+)".*/\1/')
+
+    # Retry if first attempt failed
     if [ -z "${version}" ]; then
-        error "Failed to get latest version, please check repo: ${REPO}"
+        echo "[ttl] Retrying to get latest version..." >&2
+        version=$(curl -fsSL --max-time 10 "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null | \
+            grep '"tag_name"' | \
+            sed -E 's/.*"([^"]+)".*/\1/')
     fi
+
+    # Get error message for display if still failed
+    if [ -z "${version}" ]; then
+        err=$(curl -fsSL --max-time 10 "https://api.github.com/repos/${REPO}/releases/latest" 2>&1)
+        error "Failed to get latest version from GitHub API.\nError: ${err}\nPlease check your network or try using TTL_DOWNLOAD_URL."
+    fi
+
     echo "${version}"
 }
 
@@ -95,7 +110,7 @@ main() {
         info "Download file: ${filename}"
     else
         version=$(get_latest_version)
-        filename="ttl-cli-${version}-${os}-${arch}"
+        filename="ttl-cli-${version}-${os}-${arch}.tar.gz"
         download_url="https://github.com/${REPO}/releases/download/${version}/${filename}"
         info "OS: ${os} / Arch: ${arch}"
         info "Latest version: ${version}"
@@ -108,30 +123,33 @@ main() {
     fi
 
     tmp_dir=$(mktemp -d)
-    trap 'rm -rf "${tmp_dir}"' EXIT
+    trap 'rm -rf "${tmp_dir:-}"' EXIT
 
     local download_path="${tmp_dir}/${filename}"
     info "Downloading ${filename}..."
 
     if command -v curl &>/dev/null; then
         curl -fsSL "${download_url}" -o "${download_path}" || \
-            error "Download failed: ${download_url}"
+            error "Download failed: ${download_url}\nPossible causes:\n  - Network issue\n  - GitHub is blocked\n  - Try: export TTL_DOWNLOAD_URL=\"your-mirror-url\""
     else
         wget -qO "${download_path}" "${download_url}" || \
-            error "Download failed: ${download_url}"
+            error "Download failed: ${download_url}\nPossible causes:\n  - Network issue / 网络问题\n  - GitHub is blocked / GitHub 被拦截\n  - Try: export TTL_DOWNLOAD_URL=\"your-mirror-url\""
     fi
 
-    chmod +x "${download_path}"
+    info "Extracting ${filename}..."
+    tar -xzf "${download_path}" -C "${tmp_dir}" || \
+        error "Extract failed: ${download_path}"
 
-    install_binary "${download_path}" "${dest_dir}"
+    # Find the extracted binary (could be ttl or ttl-cli)
+    local extracted_binary=$(find "${tmp_dir}" -type f \( -name "${BINARY_NAME}" -o -name "${BINARY_NAME}-cli" \) | head -1)
+    if [ -z "${extracted_binary}" ]; then
+        error "Binary '${BINARY_NAME}' not found in archive"
+    fi
+    chmod +x "${extracted_binary}"
+
+    install_binary "${extracted_binary}" "${dest_dir}"
 
     local dest="${dest_dir}/${BINARY_NAME}"
-    if [ ! -f "${dest}" ]; then
-        warn "Renaming ${download_path##*/} to ${BINARY_NAME}..."
-        mv "${download_path}" "${dest}"
-        chmod +x "${dest}"
-    fi
-
     success "Installation successful 🎉  ${dest}"
     ensure_in_path "${dest_dir}"
 
