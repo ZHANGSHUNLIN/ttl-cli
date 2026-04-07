@@ -94,6 +94,14 @@ $BINARY --conf "$TEST_CONF" history 5 | grep -q "test-resource"
 echo "   - 测试 audit..."
 $BINARY --conf "$TEST_CONF" audit | grep -q "总操作次数"
 
+echo "   - 测试 tags (list all)..."
+$BINARY --conf "$TEST_CONF" tags | grep -q "ci"
+
+echo "   - 测试 tags (specific tag)..."
+$BINARY --conf "$TEST_CONF" add "tag-test-1" "value1" -t work
+$BINARY --conf "$TEST_CONF" add "tag-test-2" "value2" -t work
+$BINARY --conf "$TEST_CONF" tags work | grep -q "tag-test-1"
+
 echo "   - 测试 encrypt..."
 $BINARY --conf "$TEST_CONF" encrypt --migrate > /dev/null
 # 验证加密后数据仍可读取
@@ -110,6 +118,53 @@ $BINARY --conf "$TEST_CONF" get test-resource-2 | grep -q "example2.com"
 echo "   - 测试 MCP server 启动..."
 # 测试 MCP server 能否正常初始化（timeout 2秒）
 timeout 2 $BINARY --conf "$TEST_CONF" mcp < /dev/null 2>&1 | head -1 > /dev/null || true
+
+# 工作空间测试
+echo "   - 测试 workspace list (empty)..."
+$BINARY --conf "$TEST_CONF" workspace list | grep -q "暂无工作空间"
+
+echo "   - 测试 workspace create..."
+$BINARY --conf "$TEST_CONF" workspace create work > /dev/null
+$BINARY --conf "$TEST_CONF" workspace create life > /dev/null
+
+echo "   - 测试 workspace list..."
+$BINARY --conf "$TEST_CONF" workspace list | grep -q "work"
+$BINARY --conf "$TEST_CONF" workspace list | grep -q "life"
+
+echo "   - 测试 workspace switch..."
+$BINARY --conf "$TEST_CONF" workspace switch work > /dev/null
+
+echo "   - 测试 workspace current..."
+$BINARY --conf "$TEST_CONF" workspace current | grep -q "work"
+
+echo "   - 测试 workspace data isolation (add in work)..."
+$BINARY --conf "$TEST_CONF" add "work-only-resource" "work-value" > /dev/null
+
+echo "   - 测试 workspace data isolation (switch to life)..."
+$BINARY --conf "$TEST_CONF" workspace switch life > /dev/null
+
+echo "   - 测试 workspace data isolation (check work resource not in life)..."
+$BINARY --conf "$TEST_CONF" get "work-only-resource" 2>&1 | grep -q "未找到"
+
+echo "   - 测试 workspace data isolation (add in life)..."
+$BINARY --conf "$TEST_CONF" add "life-only-resource" "life-value" > /dev/null
+$BINARY --conf "$TEST_CONF" get "life-only-resource" | grep -q "life-value"
+
+echo "   - 测试 workspace show..."
+$BINARY --conf "$TEST_CONF" workspace show work | grep -q "Database"
+$BINARY --conf "$TEST_CONF" workspace show work | grep -q "Resources:"
+
+echo "   - 测试 ws alias..."
+$BINARY --conf "$TEST_CONF" ws work > /dev/null
+$BINARY --conf "$TEST_CONF" get "work-only-resource" | grep -q "work-value"
+
+echo "   - 测试 workspace delete (non-current)..."
+$BINARY --conf "$TEST_CONF" workspace switch work > /dev/null
+$BINARY --conf "$TEST_CONF" workspace delete life > /dev/null
+
+echo "   - 测试 workspace list after delete..."
+$BINARY --conf "$TEST_CONF" workspace list | grep -q "work"
+$BINARY --conf "$TEST_CONF" workspace list | grep -q "life" && exit 1 || true
 
 echo "✅ 功能回归测试通过"
 

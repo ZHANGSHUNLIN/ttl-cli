@@ -84,6 +84,17 @@
       "error_save": "保存资源失败: %w",
       "success": "标签删除成功！"
     },
+    "tags": {
+      "short": "查看标签",
+      "long": "查看所有标签或查看某标签下的资源列表。",
+      "error_fetch": "获取资源失败: %w",
+      "no_tags": "暂无标签",
+      "not_found": "未找到标签: %s"
+    },
+    "tag_resources": {
+      "header": "标签 %s 下的资源：",
+      "total": "共 %d 个资源"
+    },
     "rename": {
       "short": "重命名资源",
       "long": "给资源改名字。",
@@ -323,6 +334,41 @@
       "flag_source_url": "源云存储 API URL",
       "flag_source_key": "源云存储 API 密钥",
       "flag_source_timeout": "源云存储超时时间（秒）"
+    },
+    "workspace": {
+      "short": "工作空间管理",
+      "long": "管理工作空间，支持创建、切换、删除等操作。",
+      "list": {
+        "short": "列出所有工作空间",
+        "long": "列出所有工作空间，当前激活的工作空间会用 * 标记。",
+        "empty": "暂无工作空间"
+      },
+      "switch": {
+        "short": "切换工作空间",
+        "long": "切换到指定的工作空间，所有后续操作将在该工作空间中进行。",
+        "already_current": "当前已经是工作空间: %s",
+        "success": "已切换到工作空间: %s"
+      },
+      "create": {
+        "short": "创建新工作空间",
+        "long": "创建一个新的工作空间，每个工作空间有独立的数据库。",
+        "success": "工作空间创建成功: %s (db: %s)"
+      },
+      "delete": {
+        "short": "删除工作空间",
+        "long": "删除指定的工作空间及其数据库文件。",
+        "cannot_delete_current": "不能删除当前工作空间，请先切换到其他空间",
+        "success": "工作空间删除成功: %s"
+      },
+      "current": {
+        "short": "显示当前工作空间",
+        "long": "显示当前激活的工作空间信息。",
+        "label": "当前工作空间:"
+      },
+      "show": {
+        "short": "显示工作空间详情",
+        "long": "显示指定工作空间的详细信息，包括数据库路径和资源数量。"
+      }
     }
   },
   "root": {

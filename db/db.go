@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"ttl-cli/conf"
+	"ttl-cli/crypto"
+	"ttl-cli/models"
 	"io"
 	"net/http"
 	"os"
@@ -12,9 +15,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"ttl-cli/conf"
-	"ttl-cli/crypto"
-	"ttl-cli/models"
 
 	"go.etcd.io/bbolt"
 )
@@ -26,6 +26,7 @@ type Storage interface {
 	SaveResource(key models.ValJsonKey, value models.ValJson) error
 	DeleteResource(key models.ValJsonKey) error
 	UpdateResource(key models.ValJsonKey, newValue models.ValJson) error
+	GetTagStats() ([]models.TagStat, error)
 	SaveAuditRecord(record models.AuditRecord) error
 	GetAuditStats() (models.AuditStats, error)
 	GetAllAuditRecords() ([]models.AuditRecord, error)
@@ -51,7 +52,7 @@ type LocalStorage struct {
 	confFile      string
 	encryptionKey []byte
 	encrypted     bool
-	timeout       int // 超时时间（秒），默认 5 秒
+	timeout       int
 }
 
 func NewLocalStorage() *LocalStorage {
@@ -263,6 +264,46 @@ func (ls *LocalStorage) UpdateResource(key models.ValJsonKey, newValue models.Va
 
 		return bucket.Put(keyBytes, valBytes)
 	})
+}
+
+func (ls *LocalStorage) GetTagStats() ([]models.TagStat, error) {
+	resources, err := ls.GetAllResources()
+	if err != nil {
+		return nil, err
+	}
+
+	tagMap := make(map[string]models.TagStat)
+
+	for key, val := range resources {
+		if key.Type != models.ORIGIN {
+			continue
+		}
+
+		for _, tag := range val.Tag {
+			if stat, exists := tagMap[tag]; exists {
+				stat.Count++
+				stat.ResourceKeys = append(stat.ResourceKeys, key.Key)
+				tagMap[tag] = stat
+			} else {
+				tagMap[tag] = models.TagStat{
+					Tag:         tag,
+					Count:       1,
+					ResourceKeys: []string{key.Key},
+				}
+			}
+		}
+	}
+
+	stats := make([]models.TagStat, 0, len(tagMap))
+	for _, stat := range tagMap {
+		stats = append(stats, stat)
+	}
+
+	sort.Slice(stats, func(i, j int) bool {
+		return stats[i].Tag < stats[j].Tag
+	})
+
+	return stats, nil
 }
 
 func (ls *LocalStorage) IsEncryptionEnabled() bool {
@@ -553,6 +594,46 @@ func (cs *CloudStorage) UpdateResource(key models.ValJsonKey, newValue models.Va
 	return err
 }
 
+func (cs *CloudStorage) GetTagStats() ([]models.TagStat, error) {
+	resources, err := cs.GetAllResources()
+	if err != nil {
+		return nil, err
+	}
+
+	tagMap := make(map[string]models.TagStat)
+
+	for key, val := range resources {
+		if key.Type != models.ORIGIN {
+			continue
+		}
+
+		for _, tag := range val.Tag {
+			if stat, exists := tagMap[tag]; exists {
+				stat.Count++
+				stat.ResourceKeys = append(stat.ResourceKeys, key.Key)
+				tagMap[tag] = stat
+			} else {
+				tagMap[tag] = models.TagStat{
+					Tag:         tag,
+					Count:       1,
+					ResourceKeys: []string{key.Key},
+				}
+			}
+		}
+	}
+
+	stats := make([]models.TagStat, 0, len(tagMap))
+	for _, stat := range tagMap {
+		stats = append(stats, stat)
+	}
+
+	sort.Slice(stats, func(i, j int) bool {
+		return stats[i].Tag < stats[j].Tag
+	})
+
+	return stats, nil
+}
+
 type SyncStorage struct {
 	localStorage Storage
 	cloudStorage Storage
@@ -604,6 +685,10 @@ func (ss *SyncStorage) UpdateResource(key models.ValJsonKey, newValue models.Val
 	return ss.cloudStorage.UpdateResource(key, newValue)
 }
 
+func (ss *SyncStorage) GetTagStats() ([]models.TagStat, error) {
+	return ss.localStorage.GetTagStats()
+}
+
 func GetDBPath(confFile string, storageType string) (string, error) {
 	var (
 		ttlConf models.TtlIni
@@ -618,11 +703,38 @@ func GetDBPath(confFile string, storageType string) (string, error) {
 		return "", err
 	}
 
-	var baseDir string
+	workspaceName := ttlConf.Workspace
+	if workspaceName == "" {
+		workspaceName = "default"
+	}
 
-	if ttlConf.DbPath != "" {
-		ext := filepath.Ext(ttlConf.DbPath)
-		basePath := ttlConf.DbPath[:len(ttlConf.DbPath)-len(ext)]
+	var baseDir string
+	var dbPath string
+
+	if ws, ok := ttlConf.Workspaces[workspaceName]; ok && ws.DbPath != "" {
+		return ws.DbPath, nil
+	} else if ttlConf.DbPath != "" {
+		dbPath = ttlConf.DbPath
+	} else {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return "", fmt.Errorf("获取用户目录失败: %w", err)
+		}
+		baseDir = filepath.Join(homeDir, ".ttl")
+
+		switch storageType {
+		case "sqlite":
+			return filepath.Join(baseDir, "data.db"), nil
+		case "local", "bbolt":
+			return filepath.Join(baseDir, "data.bbolt"), nil
+		default:
+			return filepath.Join(baseDir, "data.db"), nil
+		}
+	}
+
+	if dbPath != "" {
+		ext := filepath.Ext(dbPath)
+		basePath := dbPath[:len(dbPath)-len(ext)]
 
 		switch storageType {
 		case "sqlite":

@@ -5,7 +5,7 @@ const (
 	TAG
 )
 
-const Version = "1.0.0"
+const Version = "0.0.3"
 
 type ValJsonKey struct {
 	Key       string `json:"key"`
@@ -58,6 +58,12 @@ type LogRecord struct {
 	Date      string   `json:"date"`
 }
 
+type TagStat struct {
+	Tag         string   `json:"tag"`
+	Count       int      `json:"count"`
+	ResourceKeys []string `json:"resourceKeys"`
+}
+
 type ChatMessage struct {
 	Role      string `json:"role"`      // "system" | "user" | "assistant"
 	Content   string `json:"content"`   // 消息内容
@@ -77,10 +83,12 @@ const (
 )
 
 type TtlIni struct {
-	StorageType string       `ini:"storage_type"`
-	DbPath      string       `ini:"db_path"`
-	AI          AIConfig     `ini:"ai"`
-	BoltDB      BoltDBConfig `ini:"bbolt"`
+	StorageType string                `ini:"storage_type"`
+	DbPath      string                `ini:"db_path"`
+	Workspace   string                `ini:"workspace"`
+	AI          AIConfig              `ini:"ai"`
+	BoltDB      BoltDBConfig          `ini:"bbolt"`
+	Workspaces  map[string]WorkspaceConfig `ini:"-"`
 }
 
 type AIConfig struct {
@@ -96,5 +104,14 @@ type AIConfig struct {
 }
 
 type BoltDBConfig struct {
-	Timeout int `ini:"timeout"` // 超时时间（秒），默认 5 秒
+	Timeout int `ini:"timeout"`
+}
+
+type WorkspaceConfig struct {
+	DbPath      string `ini:"db_path"`
+	StorageType string `ini:"storage_type"`
+}
+
+type WorkspacesSection struct {
+	Workspaces map[string]WorkspaceConfig `ini:"-"`
 }

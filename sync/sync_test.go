@@ -179,6 +179,9 @@ func (ms *mockStorage) UpdateResource(key models.ValJsonKey, newValue models.Val
 	ms.resources[key] = newValue
 	return nil
 }
+func (ms *mockStorage) GetTagStats() ([]models.TagStat, error) {
+	return nil, nil
+}
 func (ms *mockStorage) SaveAuditRecord(_ models.AuditRecord) error { return nil }
 func (ms *mockStorage) GetAuditStats() (models.AuditStats, error)  { return models.AuditStats{}, nil }
 func (ms *mockStorage) GetAllAuditRecords() ([]models.AuditRecord, error) {

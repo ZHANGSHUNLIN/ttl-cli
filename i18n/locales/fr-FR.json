@@ -84,6 +84,17 @@
       "error_save": "Échec de l'enregistrement de la ressource: %w",
       "success": "Tag supprimé avec succès!"
     },
+    "tags": {
+      "short": "Voir les tags",
+      "long": "Lister tous les tags ou afficher les ressources sous un tag spécifique.",
+      "error_fetch": "Échec de la récupération des ressources: %w",
+      "no_tags": "Aucun tag trouvé",
+      "not_found": "Tag non trouvé: %s"
+    },
+    "tag_resources": {
+      "header": "Ressources avec le tag %s:",
+      "total": "Total: %d ressources"
+    },
     "rename": {
       "short": "Renommer une ressource",
       "long": "Changer le nom d'une ressource.",

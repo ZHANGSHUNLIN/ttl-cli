@@ -2,9 +2,9 @@ package db
 
 import (
 	"fmt"
-	"time"
 	"ttl-cli/conf"
 	"ttl-cli/models"
+	"time"
 )
 
 var Stor Storage
@@ -95,6 +95,13 @@ func UpdateResource(key models.ValJsonKey, newValue models.ValJson) error {
 		return fmt.Errorf("storage not initialized")
 	}
 	return Stor.UpdateResource(key, newValue)
+}
+
+func GetTagStats() ([]models.TagStat, error) {
+	if Stor == nil {
+		return nil, fmt.Errorf("storage not initialized")
+	}
+	return Stor.GetTagStats()
 }
 
 func MigrateData(sourceType, targetType, sourceAPIURL,

@@ -177,6 +177,90 @@ func TestCleanupResourceHistory(t *testing.T) {
 	CleanupResourceHistory("test-resource", false)
 }
 
+func TestGetTagStats(t *testing.T) {
+	cleanup := newTempInitDB(t)
+	defer cleanup()
+
+	key1 := models.ValJsonKey{Key: "test-resource-1", Type: models.ORIGIN}
+	val1 := models.ValJson{Val: "value1", Tag: []string{"work", "dev"}}
+	_ = SaveResource(key1, val1)
+
+	key2 := models.ValJsonKey{Key: "test-resource-2", Type: models.ORIGIN}
+	val2 := models.ValJson{Val: "value2", Tag: []string{"work", "ci"}}
+	_ = SaveResource(key2, val2)
+
+	key3 := models.ValJsonKey{Key: "test-resource-3", Type: models.ORIGIN}
+	val3 := models.ValJson{Val: "value3", Tag: []string{"deploy"}}
+	_ = SaveResource(key3, val3)
+
+	stats, err := GetTagStats()
+	if err != nil {
+		t.Fatalf("GetTagStats() error = %v", err)
+	}
+
+	if len(stats) != 4 {
+		t.Errorf("Expected 4 unique tags (work, dev, ci, deploy), got %d", len(stats))
+	}
+
+	tagMap := make(map[string]int)
+	for _, stat := range stats {
+		tagMap[stat.Tag] = stat.Count
+	}
+
+	if tagMap["work"] != 2 {
+		t.Errorf("Expected 'work' tag count 2, got %d", tagMap["work"])
+	}
+	if tagMap["dev"] != 1 {
+		t.Errorf("Expected 'dev' tag count 1, got %d", tagMap["dev"])
+	}
+	if tagMap["ci"] != 1 {
+		t.Errorf("Expected 'ci' tag count 1, got %d", tagMap["ci"])
+	}
+	if tagMap["deploy"] != 1 {
+		t.Errorf("Expected 'deploy' tag count 1, got %d", tagMap["deploy"])
+	}
+}
+
+func TestGetTagStats_Empty(t *testing.T) {
+	cleanup := newTempInitDB(t)
+	defer cleanup()
+
+	stats, err := GetTagStats()
+	if err != nil {
+		t.Fatalf("GetTagStats() error = %v", err)
+	}
+
+	if len(stats) != 0 {
+		t.Errorf("Expected 0 tags for empty database, got %d", len(stats))
+	}
+}
+
+func TestGetTagStats_TagTypeExcluded(t *testing.T) {
+	cleanup := newTempInitDB(t)
+	defer cleanup()
+
+	originKey := models.ValJsonKey{Key: "origin-resource", Type: models.ORIGIN}
+	originVal := models.ValJson{Val: "value", Tag: []string{"work"}}
+	_ = SaveResource(originKey, originVal)
+
+	tagKey := models.ValJsonKey{Key: "tag-resource", Type: models.TAG, OriginKey: "origin-resource"}
+	tagVal := models.ValJson{Val: "value", Tag: []string{"tag-only"}}
+	_ = SaveResource(tagKey, tagVal)
+
+	stats, err := GetTagStats()
+	if err != nil {
+		t.Fatalf("GetTagStats() error = %v", err)
+	}
+
+	if len(stats) != 1 {
+		t.Errorf("Expected 1 tag (TAG type resources should be excluded), got %d", len(stats))
+	}
+
+	if stats[0].Tag != "work" {
+		t.Errorf("Expected tag 'work', got '%s'", stats[0].Tag)
+	}
+}
+
 func TestInterfaceMethods(t *testing.T) {
 	localStorage := NewLocalStorage()
 	cloudStorage := NewCloudStorage("https://api.example.com", "test-key", 30)
