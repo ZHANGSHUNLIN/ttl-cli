@@ -59,8 +59,8 @@ type LogRecord struct {
 }
 
 type TagStat struct {
-	Tag         string   `json:"tag"`
-	Count       int      `json:"count"`
+	Tag          string   `json:"tag"`
+	Count        int      `json:"count"`
 	ResourceKeys []string `json:"resourceKeys"`
 }
 
@@ -83,11 +83,11 @@ const (
 )
 
 type TtlIni struct {
-	StorageType string                `ini:"storage_type"`
-	DbPath      string                `ini:"db_path"`
-	Workspace   string                `ini:"workspace"`
-	AI          AIConfig              `ini:"ai"`
-	BoltDB      BoltDBConfig          `ini:"bbolt"`
+	StorageType string                     `ini:"storage_type"`
+	DbPath      string                     `ini:"db_path"`
+	Workspace   string                     `ini:"workspace"`
+	AI          AIConfig                   `ini:"ai"`
+	BoltDB      BoltDBConfig               `ini:"bbolt"`
 	Workspaces  map[string]WorkspaceConfig `ini:"-"`
 }
 

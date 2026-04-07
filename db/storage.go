@@ -2,9 +2,9 @@ package db
 
 import (
 	"fmt"
+	"time"
 	"ttl-cli/conf"
 	"ttl-cli/models"
-	"time"
 )
 
 var Stor Storage

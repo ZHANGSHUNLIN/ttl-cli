@@ -5,9 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"ttl-cli/conf"
-	"ttl-cli/crypto"
-	"ttl-cli/models"
 	"io"
 	"net/http"
 	"os"
@@ -15,6 +12,9 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"ttl-cli/conf"
+	"ttl-cli/crypto"
+	"ttl-cli/models"
 
 	"go.etcd.io/bbolt"
 )
@@ -286,8 +286,8 @@ func (ls *LocalStorage) GetTagStats() ([]models.TagStat, error) {
 				tagMap[tag] = stat
 			} else {
 				tagMap[tag] = models.TagStat{
-					Tag:         tag,
-					Count:       1,
+					Tag:          tag,
+					Count:        1,
 					ResourceKeys: []string{key.Key},
 				}
 			}
@@ -614,8 +614,8 @@ func (cs *CloudStorage) GetTagStats() ([]models.TagStat, error) {
 				tagMap[tag] = stat
 			} else {
 				tagMap[tag] = models.TagStat{
-					Tag:         tag,
-					Count:       1,
+					Tag:          tag,
+					Count:        1,
 					ResourceKeys: []string{key.Key},
 				}
 			}

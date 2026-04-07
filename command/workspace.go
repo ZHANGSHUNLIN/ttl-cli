@@ -211,10 +211,10 @@ var WorkspaceShowCmd = &cobra.Command{
 }
 
 var WsCmd = &cobra.Command{
-	Use:     "ws <name>",
-	Short:   "Switch workspace (alias for 'workspace switch')",
-	Long:    "Quickly switch to a workspace. Alias for 'ttl workspace switch <name>'",
-	Args:    cobra.ExactArgs(1),
+	Use:   "ws <name>",
+	Short: "Switch workspace (alias for 'workspace switch')",
+	Long:  "Quickly switch to a workspace. Alias for 'ttl workspace switch <name>'",
+	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		confFile := cmd.Context().Value("confFile").(string)

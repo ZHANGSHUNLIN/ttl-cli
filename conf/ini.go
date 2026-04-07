@@ -3,11 +3,11 @@ package conf
 import (
 	"fmt"
 	"gopkg.in/ini.v1"
-	"ttl-cli/models"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"ttl-cli/models"
 )
 
 func GetTtlConf() (models.TtlIni, error) {
@@ -170,7 +170,7 @@ func createDefaultConfig(configPath, dbPath string) (models.TtlIni, error) {
 		return models.TtlIni{}, fmt.Errorf("failed to save default config: %w", err)
 	}
 
-	return models.TtlIni{}, nil
+	return loadConfFile(configPath)
 }
 
 func GetWorkspaceDBPath(confFile string) (string, string, error) {
