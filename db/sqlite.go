@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"time"
 	"ttl-cli/models"
 
@@ -240,6 +241,46 @@ func (s *SQLiteStorage) DeleteResource(key models.ValJsonKey) error {
 
 func (s *SQLiteStorage) UpdateResource(key models.ValJsonKey, newValue models.ValJson) error {
 	return s.SaveResource(key, newValue)
+}
+
+func (s *SQLiteStorage) GetTagStats() ([]models.TagStat, error) {
+	resources, err := s.GetAllResources()
+	if err != nil {
+		return nil, err
+	}
+
+	tagMap := make(map[string]models.TagStat)
+
+	for key, val := range resources {
+		if key.Type != models.ORIGIN {
+			continue
+		}
+
+		for _, tag := range val.Tag {
+			if stat, exists := tagMap[tag]; exists {
+				stat.Count++
+				stat.ResourceKeys = append(stat.ResourceKeys, key.Key)
+				tagMap[tag] = stat
+			} else {
+				tagMap[tag] = models.TagStat{
+					Tag:          tag,
+					Count:        1,
+					ResourceKeys: []string{key.Key},
+				}
+			}
+		}
+	}
+
+	stats := make([]models.TagStat, 0, len(tagMap))
+	for _, stat := range tagMap {
+		stats = append(stats, stat)
+	}
+
+	sort.Slice(stats, func(i, j int) bool {
+		return stats[i].Tag < stats[j].Tag
+	})
+
+	return stats, nil
 }
 
 func (s *SQLiteStorage) SaveAuditRecord(record models.AuditRecord) error {

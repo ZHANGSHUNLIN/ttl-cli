@@ -53,6 +53,7 @@ func init() {
 	rootCmd.AddCommand(command.DelCmd)
 	rootCmd.AddCommand(command.TagCmd)
 	rootCmd.AddCommand(command.DtagCmd)
+	rootCmd.AddCommand(command.TagsCmd)
 	rootCmd.AddCommand(command.RenameCmd)
 	rootCmd.AddCommand(command.ConfigCmd)
 	rootCmd.AddCommand(command.VersionCmd)
@@ -70,6 +71,8 @@ func init() {
 	rootCmd.AddCommand(mcpCmd)
 	rootCmd.AddCommand(serverCmd)
 	rootCmd.AddCommand(syncCmd)
+	rootCmd.AddCommand(command.WorkspaceCmd)
+	rootCmd.AddCommand(command.WsCmd)
 }
 
 var mcpCmd = &cobra.Command{
@@ -392,37 +395,54 @@ func main() {
 			return nil
 		}
 
-		actualStorageType := storageType
-		if storageType == "sqlite" && cmd.Flags().Changed("storage") == false {
-			ttlConf, err := conf.GetTtlConfFromFile(confFile)
-			if err == nil && ttlConf.StorageType != "" {
-				actualStorageType = ttlConf.StorageType
-			}
+		skipDBInit := false
+		if cmd.Name() == "workspace" || (cmd.Parent() != nil && cmd.Parent().Name() == "workspace") {
+			skipDBInit = true
 		}
-
-		if err := db.InitDB(actualStorageType, cloudAPIURL, cloudAPIKey, cloudTimeout, confFile); err != nil {
-			return fmt.Errorf(i18n.T("error.init_db"), err)
+		if cmd.Name() == "ws" {
+			skipDBInit = true
 		}
 
 		ctx := context.WithValue(cmd.Context(), "debug", debug)
+		ctx = context.WithValue(ctx, "confFile", confFile)
 
 		aiConf, err := conf.LoadAIConfig(confFile)
 		if err == nil {
 			ctx = context.WithValue(ctx, "ai_config", aiConf)
 		}
-		cmd.SetContext(ctx)
-
-		replaceSpecialValuesFromHistory(args)
-
-		if !cmd.HasSubCommands() && cmd.Name() != "history" && cmd.Name() != "audit" && cmd.Name() != "export" && cmd.Name() != "mcp" && cmd.Name() != "server" && cmd.Name() != "sync" && cmd.Name() != "log" {
-			resourceKey := ""
-			if len(args) > 0 {
-				resourceKey = args[0]
+		if !skipDBInit {
+			actualStorageType := storageType
+			if storageType == "sqlite" && cmd.Flags().Changed("storage") == false {
+				ttlConf, err := conf.GetTtlConfFromFile(confFile)
+				if err == nil {
+					if ttlConf.Workspace != "" {
+						if ws, ok := ttlConf.Workspaces[ttlConf.Workspace]; ok && ws.StorageType != "" {
+							actualStorageType = ws.StorageType
+						}
+					}
+					if actualStorageType == "sqlite" && ttlConf.StorageType != "" {
+						actualStorageType = ttlConf.StorageType
+					}
+				}
 			}
-			if err := db.RecordCommandHistory(cmd.Name(), resourceKey, debug); err != nil && debug {
-				fmt.Printf(i18n.T("error.record_history"), err)
+
+			if err := db.InitDB(actualStorageType, cloudAPIURL, cloudAPIKey, cloudTimeout, confFile); err != nil {
+				return fmt.Errorf(i18n.T("error.init_db"), err)
+			}
+
+			replaceSpecialValuesFromHistory(args)
+
+			if !cmd.HasSubCommands() && cmd.Name() != "history" && cmd.Name() != "audit" && cmd.Name() != "export" && cmd.Name() != "mcp" && cmd.Name() != "server" && cmd.Name() != "sync" && cmd.Name() != "log" && cmd.Name() != "tags" {
+				resourceKey := ""
+				if len(args) > 0 {
+					resourceKey = args[0]
+				}
+				if err := db.RecordCommandHistory(cmd.Name(), resourceKey, debug); err != nil && debug {
+					fmt.Printf(i18n.T("error.record_history"), err)
+				}
 			}
 		}
+		cmd.SetContext(ctx)
 		return nil
 	}
 

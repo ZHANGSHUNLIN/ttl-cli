@@ -84,6 +84,17 @@
       "error_save": "Failed to save resource: %w",
       "success": "Tag deleted successfully!"
     },
+    "tags": {
+      "short": "View tags",
+      "long": "List all tags or show resources under a specific tag.",
+      "error_fetch": "Failed to get resources: %w",
+      "no_tags": "No tags found",
+      "not_found": "Tag not found: %s"
+    },
+    "tag_resources": {
+      "header": "Resources with tag %s:",
+      "total": "Total: %d resources"
+    },
     "rename": {
       "short": "Rename a resource",
       "long": "Change the name of a resource.",
@@ -323,6 +334,41 @@
       "flag_source_url": "Source cloud storage API URL",
       "flag_source_key": "Source cloud storage API key",
       "flag_source_timeout": "Source cloud storage timeout (seconds)"
+    },
+    "workspace": {
+      "short": "Workspace management",
+      "long": "Manage workspaces. Each workspace has its own isolated database.",
+      "list": {
+        "short": "List all workspaces",
+        "long": "List all workspaces. Current active workspace is marked with *.",
+        "empty": "No workspaces"
+      },
+      "switch": {
+        "short": "Switch workspace",
+        "long": "Switch to the specified workspace. All subsequent operations will be performed in that workspace.",
+        "already_current": "Already on workspace: %s",
+        "success": "Switched to workspace: %s"
+      },
+      "create": {
+        "short": "Create a new workspace",
+        "long": "Create a new workspace with an independent database.",
+        "success": "Workspace created: %s (db: %s)"
+      },
+      "delete": {
+        "short": "Delete a workspace",
+        "long": "Delete the specified workspace and its database file.",
+        "cannot_delete_current": "Cannot delete current workspace, please switch to another first",
+        "success": "Workspace deleted: %s"
+      },
+      "current": {
+        "short": "Show current workspace",
+        "long": "Display information about the current active workspace.",
+        "label": "Current workspace:"
+      },
+      "show": {
+        "short": "Show workspace details",
+        "long": "Display detailed information about a specific workspace, including database path and resource count."
+      }
     }
   },
   "root": {

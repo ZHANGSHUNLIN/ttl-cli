@@ -97,6 +97,13 @@ func UpdateResource(key models.ValJsonKey, newValue models.ValJson) error {
 	return Stor.UpdateResource(key, newValue)
 }
 
+func GetTagStats() ([]models.TagStat, error) {
+	if Stor == nil {
+		return nil, fmt.Errorf("storage not initialized")
+	}
+	return Stor.GetTagStats()
+}
+
 func MigrateData(sourceType, targetType, sourceAPIURL,
 	sourceAPIKey string, sourceTimeout int, cloudAPIURL string,
 	cloudAPIKey string, cloudTimeout int, debug bool,
