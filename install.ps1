@@ -45,7 +45,7 @@ function Download-Binary {
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         Invoke-WebRequest -Uri $Url -OutFile $OutputPath -UseBasicParsing
     } catch {
-        Error "Download failed: $($_.Exception.Message)"
+        Error "Download failed: $($_.Exception.Message)`nPossible causes:`n  - Network issue`n  - GitHub is blocked`n  - Try: `$env:TTL_DOWNLOAD_URL = 'your-mirror-url'; ./install.ps1"
     }
 }
 
